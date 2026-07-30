@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -11,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { StoreProvider } from "@/lib/store";
+import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { CalendarDays, Building2, LayoutDashboard, ListChecks } from "lucide-react";
 
@@ -132,12 +133,13 @@ const navItems = [
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const esAuth = useRouterState({ select: (s) => s.location.pathname === "/auth" });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StoreProvider>
+      <>
         <div className="min-h-screen bg-background">
-          <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+          {!esAuth && <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-3">
               <Link to="/" className="flex items-center gap-2">
                 <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -161,15 +163,25 @@ function RootComponent() {
                   </Link>
                 ))}
               </nav>
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  queryClient.clear();
+                  window.location.href = "/auth";
+                }}
+                className="ml-auto rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                Salir
+              </button>
             </div>
-          </header>
+          </header>}
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <main className="mx-auto max-w-7xl px-4 py-8">
             <Outlet />
           </main>
         </div>
         <Toaster position="top-right" richColors />
-      </StoreProvider>
+      </>
     </QueryClientProvider>
   );
 }

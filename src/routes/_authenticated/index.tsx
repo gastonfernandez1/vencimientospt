@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, CalendarClock, CheckCircle2, Plus, RotateCcw, Users } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EstadoBadge, puntoSemaforo } from "@/components/app/badges";
@@ -8,7 +8,7 @@ import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import { formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Dashboard de vencimientos | Vencimientos PT" },
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { cargando, data, restaurarEjemplo } = useStore();
+  const { cargando, data } = useStore();
   const obligaciones = useObligacionesEnriquecidas();
   const [abierto, setAbierto] = useState(false);
 
@@ -74,9 +74,6 @@ function Dashboard() {
           <Button asChild>
             <Link to="/empresas">Agregar empresa</Link>
           </Button>
-          <Button variant="outline" onClick={restaurarEjemplo}>
-            <RotateCcw className="size-4" /> Cargar datos de ejemplo
-          </Button>
         </div>
       </div>
     );
@@ -97,9 +94,6 @@ function Dashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={restaurarEjemplo}>
-            <RotateCcw className="size-4" /> Restaurar ejemplo
-          </Button>
           <Button onClick={() => setAbierto(true)}>
             <Plus className="size-4" /> Nueva obligación
           </Button>

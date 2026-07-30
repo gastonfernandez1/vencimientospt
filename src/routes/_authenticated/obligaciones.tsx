@@ -34,7 +34,7 @@ import {
   type Obligacion,
 } from "@/lib/domain";
 
-export const Route = createFileRoute("/obligaciones")({
+export const Route = createFileRoute("/_authenticated/obligaciones")({
   head: () => ({
     meta: [
       { title: "Obligaciones y filtros | Vencimientos PT" },
