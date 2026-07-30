@@ -17,7 +17,7 @@ import {
 import { EstadoBadge, SemaforoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useStore } from "@/lib/store";
-import { formatFecha, textoDias, type Obligacion } from "@/lib/domain";
+import { desdeMes, formatCierre, formatFecha, textoDias, type Obligacion } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/empresas/$empresaId")({
   head: () => ({
@@ -121,7 +121,7 @@ function EmpresaDetalle() {
           <Card key={ej.id}>
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-base">
-                Ejercicio fiscal · cierre {formatFecha(ej.cierre)}
+                Ejercicio fiscal · cierre {formatCierre(ej.cierre)}
               </CardTitle>
               <div className="flex gap-2">
                 <Button
@@ -210,11 +210,16 @@ function EmpresaDetalle() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Nuevo ejercicio fiscal</DialogTitle>
-            <DialogDescription>Indicá la fecha de cierre del ejercicio.</DialogDescription>
+            <DialogDescription>Indicá el mes y año de cierre del ejercicio.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-2">
-            <Label htmlFor="cierre">Fecha de cierre</Label>
-            <Input id="cierre" type="date" value={cierre} onChange={(e) => setCierre(e.target.value)} />
+            <Label htmlFor="cierre">Mes de cierre</Label>
+            <Input
+              id="cierre"
+              type="month"
+              value={cierre}
+              onChange={(e) => setCierre(e.target.value)}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogoEjercicio(false)}>
@@ -226,7 +231,7 @@ function EmpresaDetalle() {
                   toast.error("No fue posible guardar la información. Intentá nuevamente.");
                   return;
                 }
-                guardarEjercicio({ empresaId: empresa.id, cierre });
+                guardarEjercicio({ empresaId: empresa.id, cierre: desdeMes(cierre) });
                 toast.success("Los cambios fueron guardados correctamente.");
                 setDialogoEjercicio(false);
               }}

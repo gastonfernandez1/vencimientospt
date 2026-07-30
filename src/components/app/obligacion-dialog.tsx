@@ -24,7 +24,7 @@ import {
   ESTADOS,
   RESPONSABLES,
   TIPOS_PRESENTACION,
-  formatFecha,
+  formatCierre,
   type Estado,
   type Obligacion,
 } from "@/lib/domain";
@@ -107,7 +107,7 @@ export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdIn
               <SelectContent>
                 {data.ejercicios.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
-                    {empresasPorId.get(e.empresaId)?.nombre ?? "—"} · cierre {formatFecha(e.cierre)}
+                    {empresasPorId.get(e.empresaId)?.nombre ?? "—"} · cierre {formatCierre(e.cierre)}
                   </SelectItem>
                 ))}
               </SelectContent>

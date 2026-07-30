@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronsUpDown, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,11 +23,12 @@ import {
 } from "@/components/ui/table";
 import { EstadoBadge, SemaforoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
-import { useObligacionesEnriquecidas, useStore } from "@/lib/store";
+import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import {
   ESTADOS,
   RESPONSABLES,
   TIPOS_PRESENTACION,
+  formatCierre,
   formatFecha,
   textoDias,
   type Estado,
@@ -55,6 +56,64 @@ export const Route = createFileRoute("/_authenticated/obligaciones")({
 
 const TODOS = "todos";
 
+type Campo =
+  | "empresa"
+  | "tipo"
+  | "cierre"
+  | "vencimiento"
+  | "presentacion"
+  | "responsable"
+  | "estado";
+
+type Orden = { campo: Campo; asc: boolean };
+
+function valorDe(o: VistaObligacion, campo: Campo): string {
+  switch (campo) {
+    case "empresa":
+      return o.empresa.nombre;
+    case "tipo":
+      return o.tipo;
+    case "cierre":
+      return o.ejercicio.cierre;
+    case "vencimiento":
+      return o.vencimiento;
+    case "presentacion":
+      return o.presentacion ?? "";
+    case "responsable":
+      return o.responsable;
+    case "estado":
+      return o.estado;
+  }
+}
+
+function Columna({
+  campo,
+  orden,
+  onSort,
+  children,
+}: {
+  campo: Campo;
+  orden: Orden;
+  onSort: (campo: Campo) => void;
+  children: React.ReactNode;
+}) {
+  const activa = orden.campo === campo;
+  const Icono = !activa ? ChevronsUpDown : orden.asc ? ArrowUp : ArrowDown;
+  return (
+    <TableHead>
+      <button
+        type="button"
+        onClick={() => onSort(campo)}
+        className="inline-flex items-center gap-1 font-medium hover:text-foreground"
+        aria-label={`Ordenar por ${campo}`}
+      >
+        {children}
+        <Icono className={activa ? "size-3.5" : "size-3.5 opacity-40"} />
+      </button>
+    </TableHead>
+  );
+}
+
 function ObligacionesPage() {
   const { cargando, guardarObligacion, eliminarObligacion } = useStore();
   const obligaciones = useObligacionesEnriquecidas();
@@ -63,15 +122,28 @@ function ObligacionesPage() {
   const [responsable, setResponsable] = useState(TODOS);
   const [estado, setEstado] = useState(TODOS);
   const [tipo, setTipo] = useState(TODOS);
+  const [cierre, setCierre] = useState(TODOS);
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
   const [editando, setEditando] = useState<Obligacion | null>(null);
   const [abierto, setAbierto] = useState(false);
+  const [orden, setOrden] = useState<{ campo: Campo; asc: boolean }>({
+    campo: "vencimiento",
+    asc: true,
+  });
 
   const empresas = useMemo(
     () =>
       [...new Map(obligaciones.map((o) => [o.empresa.id, o.empresa])).values()].sort((a, b) =>
         a.nombre.localeCompare(b.nombre),
+      ),
+    [obligaciones],
+  );
+
+  const cierres = useMemo(
+    () =>
+      [...new Set(obligaciones.map((o) => o.ejercicio.cierre.slice(0, 7)))].sort((a, b) =>
+        b.localeCompare(a),
       ),
     [obligaciones],
   );
@@ -90,10 +162,23 @@ function ObligacionesPage() {
     if (responsable !== TODOS && o.responsable !== responsable) return false;
     if (estado !== TODOS && o.estado !== estado) return false;
     if (tipo !== TODOS && o.tipo !== tipo) return false;
+    if (cierre !== TODOS && o.ejercicio.cierre.slice(0, 7) !== cierre) return false;
     if (desde && o.vencimiento < desde) return false;
     if (hasta && o.vencimiento > hasta) return false;
     return true;
   });
+
+  const ordenadas = [...filtradas].sort((a, b) => {
+    const r = valorDe(a, orden.campo).localeCompare(valorDe(b, orden.campo), "es", {
+      sensitivity: "base",
+      numeric: true,
+    });
+    return orden.asc ? r : -r;
+  });
+
+  function ordenarPor(campo: Campo) {
+    setOrden((o) => (o.campo === campo ? { campo, asc: !o.asc } : { campo, asc: true }));
+  }
 
   function limpiar() {
     setBusqueda("");
@@ -101,6 +186,7 @@ function ObligacionesPage() {
     setResponsable(TODOS);
     setEstado(TODOS);
     setTipo(TODOS);
+    setCierre(TODOS);
     setDesde("");
     setHasta("");
   }
@@ -115,7 +201,7 @@ function ObligacionesPage() {
         <div>
           <h1 className="text-3xl font-semibold">Obligaciones</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {filtradas.length} de {obligaciones.length} obligaciones
+            {ordenadas.length} de {obligaciones.length} obligaciones
           </p>
         </div>
         <Button
@@ -171,6 +257,13 @@ function ObligacionesPage() {
               </SelectItem>
             ))}
           </Filtro>
+          <Filtro label="Fecha de cierre" value={cierre} onChange={setCierre}>
+            {cierres.map((c) => (
+              <SelectItem key={c} value={c}>
+                {formatCierre(`${c}-01`)}
+              </SelectItem>
+            ))}
+          </Filtro>
           <div className="grid gap-2">
             <Label htmlFor="desde">Vence desde</Label>
             <Input id="desde" type="date" value={desde} onChange={(e) => setDesde(e.target.value)} />
@@ -193,18 +286,32 @@ function ObligacionesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Urgencia</TableHead>
-                <TableHead>Empresa</TableHead>
-                <TableHead>Tipo de presentación</TableHead>
-                <TableHead>Cierre</TableHead>
-                <TableHead>Vencimiento</TableHead>
-                <TableHead>Presentación</TableHead>
-                <TableHead>Responsable</TableHead>
-                <TableHead>Estado</TableHead>
+                <Columna campo="empresa" orden={orden} onSort={ordenarPor}>
+                  Empresa
+                </Columna>
+                <Columna campo="tipo" orden={orden} onSort={ordenarPor}>
+                  Tipo de presentación
+                </Columna>
+                <Columna campo="cierre" orden={orden} onSort={ordenarPor}>
+                  Cierre
+                </Columna>
+                <Columna campo="vencimiento" orden={orden} onSort={ordenarPor}>
+                  Vencimiento
+                </Columna>
+                <Columna campo="presentacion" orden={orden} onSort={ordenarPor}>
+                  Presentación
+                </Columna>
+                <Columna campo="responsable" orden={orden} onSort={ordenarPor}>
+                  Responsable
+                </Columna>
+                <Columna campo="estado" orden={orden} onSort={ordenarPor}>
+                  Estado
+                </Columna>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtradas.map((o) => (
+              {ordenadas.map((o) => (
                 <TableRow key={o.id}>
                   <TableCell>
                     <SemaforoBadge obligacion={o} />
@@ -214,7 +321,7 @@ function ObligacionesPage() {
                     <p className="text-xs text-muted-foreground">{o.empresa.cuit}</p>
                   </TableCell>
                   <TableCell className="max-w-[220px]">{o.tipo}</TableCell>
-                  <TableCell className="text-sm">{formatFecha(o.ejercicio.cierre)}</TableCell>
+                  <TableCell className="text-sm">{formatCierre(o.ejercicio.cierre)}</TableCell>
                   <TableCell>
                     <p className="font-medium">{formatFecha(o.vencimiento)}</p>
                     <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
@@ -267,7 +374,7 @@ function ObligacionesPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {filtradas.length === 0 && (
+              {ordenadas.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={9} className="py-12 text-center text-muted-foreground">
                     No existen obligaciones para los filtros seleccionados.
