@@ -33,14 +33,13 @@ export type Obligacion = {
   observaciones?: string;
 };
 
-export type Semaforo = "presentado" | "vencido" | "critico" | "proximo" | "planificado";
+export type Semaforo = "presentado" | "vencido" | "critico" | "proximo";
 
 export const SEMAFORO_LABEL: Record<Semaforo, string> = {
   presentado: "Presentado",
   vencido: "Vencido",
   critico: "Vence en 7 días",
   proximo: "Vence este mes",
-  planificado: "Planificado",
 };
 
 export function hoy(): Date {
@@ -79,7 +78,7 @@ export function semaforoDe(o: Obligacion): Semaforo {
   const v = parseISO(o.vencimiento);
   const n = hoy();
   if (v.getFullYear() === n.getFullYear() && v.getMonth() === n.getMonth()) return "proximo";
-  return "planificado";
+  return "proximo";
 }
 
 export function textoDias(o: Obligacion): string {

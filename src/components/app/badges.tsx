@@ -5,7 +5,6 @@ const semaforoClases: Record<Semaforo, string> = {
   vencido: "bg-vencido-soft text-vencido border-vencido/30",
   critico: "bg-critico-soft text-critico border-critico/30",
   proximo: "bg-proximo-soft text-proximo border-proximo/30",
-  planificado: "bg-planificado-soft text-planificado border-planificado/30",
   presentado: "bg-presentado-soft text-presentado border-presentado/30",
 };
 
@@ -14,7 +13,6 @@ export function puntoSemaforo(s: Semaforo) {
     vencido: "bg-vencido",
     critico: "bg-critico",
     proximo: "bg-proximo",
-    planificado: "bg-planificado",
     presentado: "bg-presentado",
   }[s];
 }
@@ -38,7 +36,7 @@ export function SemaforoBadge({ obligacion, className }: { obligacion: Obligacio
 const estadoClases: Record<Estado, string> = {
   Pendiente: "bg-muted text-muted-foreground border-border",
   "En preparación": "bg-proximo-soft text-proximo border-proximo/30",
-  "En revisión": "bg-planificado-soft text-planificado border-planificado/30",
+  "En revisión": "bg-proximo-soft text-proximo border-proximo/30",
   Presentado: "bg-presentado-soft text-presentado border-presentado/30",
 };
 

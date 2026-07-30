@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/calendario")({
 });
 
 const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-const LEYENDA: Semaforo[] = ["vencido", "critico", "proximo", "planificado", "presentado"];
+const LEYENDA: Semaforo[] = ["vencido", "critico", "proximo", "presentado"];
 
 function CalendarioPage() {
   const { cargando } = useStore();
