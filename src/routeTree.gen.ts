@@ -9,134 +9,137 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as CalendarioRouteImport } from './routes/calendario'
-import { Route as ObligacionesRouteImport } from './routes/obligaciones'
-import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
-import { Route as EmpresasEmpresaIdRouteImport } from './routes/empresas.$empresaId'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedObligacionesRouteImport } from './routes/_authenticated/obligaciones'
+import { Route as AuthenticatedEmpresasIndexRouteImport } from './routes/_authenticated/empresas.index'
+import { Route as AuthenticatedEmpresasEmpresaIdRouteImport } from './routes/_authenticated/empresas.$empresaId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CalendarioRoute = CalendarioRouteImport.update({
-  id: '/calendario',
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/_authenticated/calendario',
   path: '/calendario',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ObligacionesRoute = ObligacionesRouteImport.update({
-  id: '/obligaciones',
-  path: '/obligaciones',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
-  id: '/empresas/',
-  path: '/empresas/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmpresasEmpresaIdRoute = EmpresasEmpresaIdRouteImport.update({
-  id: '/empresas/$empresaId',
-  path: '/empresas/$empresaId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedObligacionesRoute =
+  AuthenticatedObligacionesRouteImport.update({
+    id: '/_authenticated/obligaciones',
+    path: '/obligaciones',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedEmpresasIndexRoute =
+  AuthenticatedEmpresasIndexRouteImport.update({
+    id: '/_authenticated/empresas/',
+    path: '/empresas/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedEmpresasEmpresaIdRoute =
+  AuthenticatedEmpresasEmpresaIdRouteImport.update({
+    id: '/_authenticated/empresas/$empresaId',
+    path: '/empresas/$empresaId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/calendario': typeof CalendarioRoute
-  '/obligaciones': typeof ObligacionesRoute
-  '/empresas/$empresaId': typeof EmpresasEmpresaIdRoute
-  '/empresas/': typeof EmpresasIndexRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/obligaciones': typeof AuthenticatedObligacionesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/empresas/$empresaId': typeof AuthenticatedEmpresasEmpresaIdRoute
+  '/empresas/': typeof AuthenticatedEmpresasIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/calendario': typeof CalendarioRoute
-  '/obligaciones': typeof ObligacionesRoute
-  '/empresas/$empresaId': typeof EmpresasEmpresaIdRoute
-  '/empresas': typeof EmpresasIndexRoute
+  '/calendario': typeof AuthenticatedCalendarioRoute
+  '/obligaciones': typeof AuthenticatedObligacionesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/empresas/$empresaId': typeof AuthenticatedEmpresasEmpresaIdRoute
+  '/empresas': typeof AuthenticatedEmpresasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/calendario': typeof CalendarioRoute
-  '/obligaciones': typeof ObligacionesRoute
-  '/empresas/$empresaId': typeof EmpresasEmpresaIdRoute
-  '/empresas/': typeof EmpresasIndexRoute
+  '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
+  '/_authenticated/obligaciones': typeof AuthenticatedObligacionesRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/empresas/$empresaId': typeof AuthenticatedEmpresasEmpresaIdRoute
+  '/_authenticated/empresas/': typeof AuthenticatedEmpresasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/calendario'
     | '/obligaciones'
+    | '/'
     | '/empresas/$empresaId'
     | '/empresas/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/calendario' | '/obligaciones' | '/empresas/$empresaId' | '/empresas'
+    '/calendario' | '/obligaciones' | '/' | '/empresas/$empresaId' | '/empresas'
   id:
     | '__root__'
-    | '/'
-    | '/calendario'
-    | '/obligaciones'
-    | '/empresas/$empresaId'
-    | '/empresas/'
+    | '/_authenticated/calendario'
+    | '/_authenticated/obligaciones'
+    | '/_authenticated/'
+    | '/_authenticated/empresas/$empresaId'
+    | '/_authenticated/empresas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  CalendarioRoute: typeof CalendarioRoute
-  ObligacionesRoute: typeof ObligacionesRoute
-  EmpresasEmpresaIdRoute: typeof EmpresasEmpresaIdRoute
-  EmpresasIndexRoute: typeof EmpresasIndexRoute
+  AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
+  AuthenticatedObligacionesRoute: typeof AuthenticatedObligacionesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedEmpresasEmpresaIdRoute: typeof AuthenticatedEmpresasEmpresaIdRoute
+  AuthenticatedEmpresasIndexRoute: typeof AuthenticatedEmpresasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calendario': {
-      id: '/calendario'
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
       path: '/calendario'
       fullPath: '/calendario'
-      preLoaderRoute: typeof CalendarioRouteImport
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/obligaciones': {
-      id: '/obligaciones'
+    '/_authenticated/obligaciones': {
+      id: '/_authenticated/obligaciones'
       path: '/obligaciones'
       fullPath: '/obligaciones'
-      preLoaderRoute: typeof ObligacionesRouteImport
+      preLoaderRoute: typeof AuthenticatedObligacionesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/empresas/': {
-      id: '/empresas/'
+    '/_authenticated/empresas/': {
+      id: '/_authenticated/empresas/'
       path: '/empresas'
       fullPath: '/empresas/'
-      preLoaderRoute: typeof EmpresasIndexRouteImport
+      preLoaderRoute: typeof AuthenticatedEmpresasIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/empresas/$empresaId': {
-      id: '/empresas/$empresaId'
+    '/_authenticated/empresas/$empresaId': {
+      id: '/_authenticated/empresas/$empresaId'
       path: '/empresas/$empresaId'
       fullPath: '/empresas/$empresaId'
-      preLoaderRoute: typeof EmpresasEmpresaIdRouteImport
+      preLoaderRoute: typeof AuthenticatedEmpresasEmpresaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  CalendarioRoute: CalendarioRoute,
-  ObligacionesRoute: ObligacionesRoute,
-  EmpresasEmpresaIdRoute: EmpresasEmpresaIdRoute,
-  EmpresasIndexRoute: EmpresasIndexRoute,
+  AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
+  AuthenticatedObligacionesRoute: AuthenticatedObligacionesRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedEmpresasEmpresaIdRoute: AuthenticatedEmpresasEmpresaIdRoute,
+  AuthenticatedEmpresasIndexRoute: AuthenticatedEmpresasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

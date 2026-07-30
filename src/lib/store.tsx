@@ -1,111 +1,101 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { crearDatosEjemplo } from "./seed";
-import type { Empresa, Ejercicio, Obligacion } from "./domain";
+import { useMemo } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import type { Empresa, Ejercicio, Obligacion, Estado } from "./domain";
 
 type Data = { empresas: Empresa[]; ejercicios: Ejercicio[]; obligaciones: Obligacion[] };
-
-const KEY = "vencimientos-pt-v1";
-
-type Ctx = {
-  cargando: boolean;
-  data: Data;
-  guardarEmpresa: (e: Omit<Empresa, "id"> & { id?: string }) => void;
-  eliminarEmpresa: (id: string) => void;
-  guardarEjercicio: (e: Omit<Ejercicio, "id"> & { id?: string }) => void;
-  eliminarEjercicio: (id: string) => void;
-  guardarObligacion: (o: Omit<Obligacion, "id"> & { id?: string }) => void;
-  eliminarObligacion: (id: string) => void;
-  restaurarEjemplo: () => void;
-};
-
-const StoreContext = createContext<Ctx | null>(null);
 const vacio: Data = { empresas: [], ejercicios: [], obligaciones: [] };
-const nuevoId = () => Math.random().toString(36).slice(2, 10);
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<Data>(vacio);
-  const [cargando, setCargando] = useState(true);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      setData(raw ? (JSON.parse(raw) as Data) : crearDatosEjemplo());
-    } catch {
-      setData(crearDatosEjemplo());
-    }
-    setCargando(false);
-  }, []);
-
-  useEffect(() => {
-    if (cargando) return;
-    try {
-      localStorage.setItem(KEY, JSON.stringify(data));
-    } catch {
-      /* almacenamiento no disponible */
-    }
-  }, [data, cargando]);
-
-  const value = useMemo<Ctx>(
-    () => ({
-      cargando,
-      data,
-      guardarEmpresa: (e) =>
-        setData((d) => ({
-          ...d,
-          empresas: e.id
-            ? d.empresas.map((x) => (x.id === e.id ? ({ ...x, ...e } as Empresa) : x))
-            : [...d.empresas, { ...e, id: nuevoId() } as Empresa],
-        })),
-      eliminarEmpresa: (id) =>
-        setData((d) => {
-          const ejercicios = d.ejercicios.filter((x) => x.empresaId !== id);
-          const ids = new Set(ejercicios.map((x) => x.id));
-          return {
-            empresas: d.empresas.filter((x) => x.id !== id),
-            ejercicios,
-            obligaciones: d.obligaciones.filter((o) => ids.has(o.ejercicioId)),
-          };
-        }),
-      guardarEjercicio: (e) =>
-        setData((d) => ({
-          ...d,
-          ejercicios: e.id
-            ? d.ejercicios.map((x) => (x.id === e.id ? ({ ...x, ...e } as Ejercicio) : x))
-            : [...d.ejercicios, { ...e, id: nuevoId() } as Ejercicio],
-        })),
-      eliminarEjercicio: (id) =>
-        setData((d) => ({
-          ...d,
-          ejercicios: d.ejercicios.filter((x) => x.id !== id),
-          obligaciones: d.obligaciones.filter((o) => o.ejercicioId !== id),
-        })),
-      guardarObligacion: (o) =>
-        setData((d) => ({
-          ...d,
-          obligaciones: o.id
-            ? d.obligaciones.map((x) => (x.id === o.id ? ({ ...x, ...o } as Obligacion) : x))
-            : [...d.obligaciones, { ...o, id: nuevoId() } as Obligacion],
-        })),
-      eliminarObligacion: (id) =>
-        setData((d) => ({ ...d, obligaciones: d.obligaciones.filter((x) => x.id !== id) })),
-      restaurarEjemplo: () => setData(crearDatosEjemplo()),
-    }),
-    [data, cargando],
-  );
-
-  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
+async function cargarTodo(): Promise<Data> {
+  const [empresas, ejercicios, obligaciones] = await Promise.all([
+    supabase.from("empresas").select("*").order("nombre"),
+    supabase.from("ejercicios").select("*").order("cierre", { ascending: false }),
+    supabase.from("obligaciones").select("*").order("vencimiento"),
+  ]);
+  if (empresas.error || ejercicios.error || obligaciones.error) {
+    throw empresas.error ?? ejercicios.error ?? obligaciones.error;
+  }
+  return {
+    empresas: (empresas.data ?? []).map((e) => ({ id: e.id, nombre: e.nombre, cuit: e.cuit })),
+    ejercicios: (ejercicios.data ?? []).map((e) => ({
+      id: e.id,
+      empresaId: e.empresa_id,
+      cierre: e.cierre,
+    })),
+    obligaciones: (obligaciones.data ?? []).map((o) => ({
+      id: o.id,
+      ejercicioId: o.ejercicio_id,
+      tipo: o.tipo,
+      vencimiento: o.vencimiento,
+      responsable: o.responsable,
+      estado: o.estado as Estado,
+      presentacion: o.presentacion ?? undefined,
+      observaciones: o.observaciones ?? undefined,
+    })),
+  };
 }
 
 export function useStore() {
-  const ctx = useContext(StoreContext);
-  if (!ctx) throw new Error("useStore debe usarse dentro de StoreProvider");
-  return ctx;
+  const queryClient = useQueryClient();
+  const { data, isPending, isError } = useQuery({ queryKey: ["datos"], queryFn: cargarTodo });
+
+  const mutar = useMutation({
+    mutationFn: async (accion: () => Promise<{ error: unknown }>) => {
+      const { error } = await accion();
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["datos"] });
+      toast.success("Los cambios fueron guardados correctamente.");
+    },
+    onError: () => toast.error("No fue posible guardar la información. Intentá nuevamente."),
+  });
+
+  return useMemo(
+    () => ({
+      cargando: isPending,
+      error: isError,
+      data: data ?? vacio,
+      guardarEmpresa: (e: Omit<Empresa, "id"> & { id?: string }) =>
+        mutar.mutate(() =>
+          e.id
+            ? supabase.from("empresas").update({ nombre: e.nombre, cuit: e.cuit }).eq("id", e.id)
+            : supabase.from("empresas").insert({ nombre: e.nombre, cuit: e.cuit }),
+        ),
+      eliminarEmpresa: (id: string) => mutar.mutate(() => supabase.from("empresas").delete().eq("id", id)),
+      guardarEjercicio: (e: Omit<Ejercicio, "id"> & { id?: string }) =>
+        mutar.mutate(() =>
+          e.id
+            ? supabase.from("ejercicios").update({ cierre: e.cierre }).eq("id", e.id)
+            : supabase.from("ejercicios").insert({ empresa_id: e.empresaId, cierre: e.cierre }),
+        ),
+      eliminarEjercicio: (id: string) =>
+        mutar.mutate(() => supabase.from("ejercicios").delete().eq("id", id)),
+      guardarObligacion: (o: Omit<Obligacion, "id"> & { id?: string }) => {
+        const fila = {
+          ejercicio_id: o.ejercicioId,
+          tipo: o.tipo,
+          vencimiento: o.vencimiento,
+          responsable: o.responsable,
+          estado: o.estado,
+          presentacion: o.presentacion ?? null,
+          observaciones: o.observaciones ?? null,
+        };
+        mutar.mutate(() =>
+          o.id
+            ? supabase.from("obligaciones").update(fila).eq("id", o.id)
+            : supabase.from("obligaciones").insert(fila),
+        );
+      },
+      eliminarObligacion: (id: string) =>
+        mutar.mutate(() => supabase.from("obligaciones").delete().eq("id", id)),
+    }),
+    [data, isPending, isError, mutar],
+  );
 }
 
-export type VistaObligacion = Obligacion & {
-  empresa: Empresa;
-  ejercicio: Ejercicio;
-};
+export type VistaObligacion = Obligacion & { empresa: Empresa; ejercicio: Ejercicio };
 
 export function useObligacionesEnriquecidas(): VistaObligacion[] {
   const { data } = useStore();
