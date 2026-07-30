@@ -11,6 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { StoreProvider } from "@/lib/store";
+import { Toaster } from "@/components/ui/sonner";
+import { CalendarDays, Building2, LayoutDashboard, ListChecks } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -77,11 +80,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Vencimientos PT — Precios de Transferencia" },
+      { name: "description", content: "Seguimiento de vencimientos de Declaraciones Juradas de Precios de Transferencia." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Vencimientos PT" },
+      { property: "og:description", content: "Dashboard de vencimientos de Precios de Transferencia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -92,6 +95,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -114,13 +123,53 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const navItems = [
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/obligaciones", label: "Obligaciones", icon: ListChecks },
+  { to: "/calendario", label: "Calendario", icon: CalendarDays },
+  { to: "/empresas", label: "Empresas", icon: Building2 },
+] as const;
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <StoreProvider>
+        <div className="min-h-screen bg-background">
+          <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+            <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-3">
+              <Link to="/" className="flex items-center gap-2">
+                <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <CalendarDays className="size-4" />
+                </span>
+                <span className="font-display text-lg font-semibold leading-none">
+                  Vencimientos PT
+                </span>
+              </Link>
+              <nav className="flex flex-wrap items-center gap-1 text-sm">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    activeOptions={{ exact: item.to === "/" }}
+                    className="flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    activeProps={{ className: "bg-secondary text-foreground" }}
+                  >
+                    <item.icon className="size-4" />
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </header>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <main className="mx-auto max-w-7xl px-4 py-8">
+            <Outlet />
+          </main>
+        </div>
+        <Toaster position="top-right" richColors />
+      </StoreProvider>
     </QueryClientProvider>
   );
 }
