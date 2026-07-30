@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { EstadoBadge, SemaforoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
-import { useObligacionesEnriquecidas, useStore } from "@/lib/store";
+import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import {
   ESTADOS,
   RESPONSABLES,
