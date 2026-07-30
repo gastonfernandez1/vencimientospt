@@ -65,6 +65,23 @@ export function formatFecha(value?: string): string {
   return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+/** Cierre de ejercicio: sólo mes y año (ej. "06/2025"). */
+export function formatCierre(value?: string): string {
+  if (!value) return "—";
+  const d = parseISO(value);
+  return d.toLocaleDateString("es-AR", { month: "2-digit", year: "numeric" });
+}
+
+/** "2025-06-30" -> "2025-06" (valor para <input type="month">) */
+export function aMes(value?: string): string {
+  return value ? value.slice(0, 7) : "";
+}
+
+/** "2025-06" -> "2025-06-01" (valor almacenado como fecha) */
+export function desdeMes(value: string): string {
+  return value ? `${value}-01` : "";
+}
+
 export function diasRestantes(vencimiento: string): number {
   const diff = parseISO(vencimiento).getTime() - hoy().getTime();
   return Math.round(diff / 86400000);
