@@ -41,7 +41,7 @@ export function useStore() {
   const { data, isPending, isError } = useQuery({ queryKey: ["datos"], queryFn: cargarTodo });
 
   const mutar = useMutation({
-    mutationFn: async (accion: () => Promise<{ error: unknown }>) => {
+    mutationFn: async (accion: () => PromiseLike<{ error: unknown }>) => {
       const { error } = await accion();
       if (error) throw error;
     },
