@@ -24,7 +24,7 @@ import {
   ESTADOS,
   RESPONSABLES,
   TIPOS_PRESENTACION,
-  formatFecha,
+  formatCierre,
   type Estado,
   type Obligacion,
 } from "@/lib/domain";
