@@ -14,7 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ejercicios: {
+        Row: {
+          cierre: string
+          created_at: string
+          empresa_id: string
+          id: string
+        }
+        Insert: {
+          cierre: string
+          created_at?: string
+          empresa_id: string
+          id?: string
+        }
+        Update: {
+          cierre?: string
+          created_at?: string
+          empresa_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ejercicios_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empresas: {
+        Row: {
+          created_at: string
+          cuit: string
+          id: string
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          cuit?: string
+          id?: string
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          cuit?: string
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      obligaciones: {
+        Row: {
+          created_at: string
+          ejercicio_id: string
+          estado: string
+          id: string
+          observaciones: string | null
+          presentacion: string | null
+          responsable: string
+          tipo: string
+          updated_at: string
+          vencimiento: string
+        }
+        Insert: {
+          created_at?: string
+          ejercicio_id: string
+          estado?: string
+          id?: string
+          observaciones?: string | null
+          presentacion?: string | null
+          responsable?: string
+          tipo: string
+          updated_at?: string
+          vencimiento: string
+        }
+        Update: {
+          created_at?: string
+          ejercicio_id?: string
+          estado?: string
+          id?: string
+          observaciones?: string | null
+          presentacion?: string | null
+          responsable?: string
+          tipo?: string
+          updated_at?: string
+          vencimiento?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obligaciones_ejercicio_id_fkey"
+            columns: ["ejercicio_id"]
+            isOneToOne: false
+            referencedRelation: "ejercicios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
