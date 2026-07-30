@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, CalendarClock, CheckCircle2, Plus, RotateCcw, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EstadoBadge, SemaforoBadge, puntoSemaforo } from "@/components/app/badges";
+import { EstadoBadge, puntoSemaforo } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import { formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
