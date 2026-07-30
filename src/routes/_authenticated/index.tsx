@@ -8,7 +8,7 @@ import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import { formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Dashboard de vencimientos | Vencimientos PT" },

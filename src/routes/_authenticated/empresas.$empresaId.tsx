@@ -19,7 +19,7 @@ import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useStore } from "@/lib/store";
 import { formatFecha, textoDias, type Obligacion } from "@/lib/domain";
 
-export const Route = createFileRoute("/empresas/$empresaId")({
+export const Route = createFileRoute("/_authenticated/empresas/$empresaId")({
   head: () => ({
     meta: [
       { title: "Detalle de empresa | Vencimientos PT" },

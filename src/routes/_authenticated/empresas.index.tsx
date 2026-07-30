@@ -17,7 +17,7 @@ import {
 import { useObligacionesEnriquecidas, useStore } from "@/lib/store";
 import { semaforoDe } from "@/lib/domain";
 
-export const Route = createFileRoute("/empresas/")({
+export const Route = createFileRoute("/_authenticated/empresas/")({
   head: () => ({
     meta: [
       { title: "Empresas y clientes | Vencimientos PT" },

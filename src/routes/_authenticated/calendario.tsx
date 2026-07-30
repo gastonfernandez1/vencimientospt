@@ -7,7 +7,7 @@ import { puntoSemaforo } from "@/components/app/badges";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import { SEMAFORO_LABEL, formatFecha, semaforoDe, toISO, type Semaforo } from "@/lib/domain";
 
-export const Route = createFileRoute("/calendario")({
+export const Route = createFileRoute("/_authenticated/calendario")({
   head: () => ({
     meta: [
       { title: "Calendario mensual | Vencimientos PT" },
