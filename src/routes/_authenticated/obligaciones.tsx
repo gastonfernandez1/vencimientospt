@@ -56,6 +56,64 @@ export const Route = createFileRoute("/_authenticated/obligaciones")({
 
 const TODOS = "todos";
 
+type Campo =
+  | "empresa"
+  | "tipo"
+  | "cierre"
+  | "vencimiento"
+  | "presentacion"
+  | "responsable"
+  | "estado";
+
+type Orden = { campo: Campo; asc: boolean };
+
+function valorDe(o: VistaObligacion, campo: Campo): string {
+  switch (campo) {
+    case "empresa":
+      return o.empresa.nombre;
+    case "tipo":
+      return o.tipo;
+    case "cierre":
+      return o.ejercicio.cierre;
+    case "vencimiento":
+      return o.vencimiento;
+    case "presentacion":
+      return o.presentacion ?? "";
+    case "responsable":
+      return o.responsable;
+    case "estado":
+      return o.estado;
+  }
+}
+
+function Columna({
+  campo,
+  orden,
+  onSort,
+  children,
+}: {
+  campo: Campo;
+  orden: Orden;
+  onSort: (campo: Campo) => void;
+  children: React.ReactNode;
+}) {
+  const activa = orden.campo === campo;
+  const Icono = !activa ? ChevronsUpDown : orden.asc ? ArrowUp : ArrowDown;
+  return (
+    <TableHead>
+      <button
+        type="button"
+        onClick={() => onSort(campo)}
+        className="inline-flex items-center gap-1 font-medium hover:text-foreground"
+        aria-label={`Ordenar por ${campo}`}
+      >
+        {children}
+        <Icono className={activa ? "size-3.5" : "size-3.5 opacity-40"} />
+      </button>
+    </TableHead>
+  );
+}
+
 function ObligacionesPage() {
   const { cargando, guardarObligacion, eliminarObligacion } = useStore();
   const obligaciones = useObligacionesEnriquecidas();
