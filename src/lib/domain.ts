@@ -1,0 +1,91 @@
+export const TIPOS_PRESENTACION = [
+  "Firma Digital",
+  "F.2668 / F.2672",
+  "Estudio de Precios de Transferencia",
+  "Informe Maestro",
+  "F.8097 – Informe País por País",
+  "F.8096 – Informe UEC",
+  "Informe presentación CBCR",
+] as const;
+export type TipoPresentacion = (typeof TIPOS_PRESENTACION)[number];
+
+export const ESTADOS = ["Pendiente", "En preparación", "En revisión", "Presentado"] as const;
+export type Estado = (typeof ESTADOS)[number];
+
+export const RESPONSABLES = [
+  "Sofía Martínez",
+  "Julián Pereyra",
+  "Carla Domínguez",
+  "Matías Rossi",
+  "Lucía Fernández",
+];
+
+export type Empresa = { id: string; nombre: string; cuit: string };
+export type Ejercicio = { id: string; empresaId: string; cierre: string };
+export type Obligacion = {
+  id: string;
+  ejercicioId: string;
+  tipo: string;
+  vencimiento: string;
+  responsable: string;
+  estado: Estado;
+  presentacion?: string;
+  observaciones?: string;
+};
+
+export type Semaforo = "presentado" | "vencido" | "critico" | "proximo" | "planificado";
+
+export const SEMAFORO_LABEL: Record<Semaforo, string> = {
+  presentado: "Presentado",
+  vencido: "Vencido",
+  critico: "Vence en 7 días",
+  proximo: "Vence este mes",
+  planificado: "Planificado",
+};
+
+export function hoy(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+export function parseISO(value: string): Date {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+}
+
+export function toISO(date: Date): string {
+  const m = `${date.getMonth() + 1}`.padStart(2, "0");
+  const d = `${date.getDate()}`.padStart(2, "0");
+  return `${date.getFullYear()}-${m}-${d}`;
+}
+
+export function formatFecha(value?: string): string {
+  if (!value) return "—";
+  const d = parseISO(value);
+  return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+export function diasRestantes(vencimiento: string): number {
+  const diff = parseISO(vencimiento).getTime() - hoy().getTime();
+  return Math.round(diff / 86400000);
+}
+
+export function semaforoDe(o: Obligacion): Semaforo {
+  if (o.estado === "Presentado") return "presentado";
+  const dias = diasRestantes(o.vencimiento);
+  if (dias < 0) return "vencido";
+  if (dias <= 7) return "critico";
+  const v = parseISO(o.vencimiento);
+  const n = hoy();
+  if (v.getFullYear() === n.getFullYear() && v.getMonth() === n.getMonth()) return "proximo";
+  return "planificado";
+}
+
+export function textoDias(o: Obligacion): string {
+  if (o.estado === "Presentado") return "Presentado";
+  const d = diasRestantes(o.vencimiento);
+  if (d < 0) return `Vencido hace ${Math.abs(d)} día${Math.abs(d) === 1 ? "" : "s"}`;
+  if (d === 0) return "Vence hoy";
+  return `En ${d} día${d === 1 ? "" : "s"}`;
+}
