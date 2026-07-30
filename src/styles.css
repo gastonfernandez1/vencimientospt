@@ -59,24 +59,36 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-vencido: var(--vencido);
+  --color-vencido-soft: var(--vencido-soft);
+  --color-critico: var(--critico);
+  --color-critico-soft: var(--critico-soft);
+  --color-proximo: var(--proximo);
+  --color-proximo-soft: var(--proximo-soft);
+  --color-planificado: var(--planificado);
+  --color-planificado-soft: var(--planificado-soft);
+  --color-presentado: var(--presentado);
+  --color-presentado-soft: var(--presentado-soft);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --radius: 0.75rem;
+  --background: oklch(0.985 0.006 106);
+  --foreground: oklch(0.24 0.03 200);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
+  --primary: oklch(0.42 0.075 200);
+  --primary-foreground: oklch(0.985 0.006 106);
+  --secondary: oklch(0.955 0.012 190);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
   --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --accent: oklch(0.94 0.03 190);
+  --accent-foreground: oklch(0.3 0.06 200);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.929 0.013 255.508);
@@ -95,6 +107,16 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+  --vencido: oklch(0.53 0.2 25);
+  --vencido-soft: oklch(0.95 0.04 25);
+  --critico: oklch(0.62 0.17 45);
+  --critico-soft: oklch(0.96 0.045 60);
+  --proximo: oklch(0.66 0.13 85);
+  --proximo-soft: oklch(0.96 0.05 95);
+  --planificado: oklch(0.52 0.07 240);
+  --planificado-soft: oklch(0.95 0.02 240);
+  --presentado: oklch(0.5 0.11 165);
+  --presentado-soft: oklch(0.95 0.04 165);
 }
 
 .dark {
@@ -140,5 +162,11 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
   }
 }
