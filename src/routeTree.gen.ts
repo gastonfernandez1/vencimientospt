@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as ObligacionesRouteImport } from './routes/obligaciones'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
+import { Route as EmpresasEmpresaIdRouteImport } from './routes/empresas.$empresaId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,17 +35,24 @@ const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
   path: '/empresas/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmpresasEmpresaIdRoute = EmpresasEmpresaIdRouteImport.update({
+  id: '/empresas/$empresaId',
+  path: '/empresas/$empresaId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/obligaciones': typeof ObligacionesRoute
+  '/empresas/$empresaId': typeof EmpresasEmpresaIdRoute
   '/empresas/': typeof EmpresasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/obligaciones': typeof ObligacionesRoute
+  '/empresas/$empresaId': typeof EmpresasEmpresaIdRoute
   '/empresas': typeof EmpresasIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/obligaciones': typeof ObligacionesRoute
+  '/empresas/$empresaId': typeof EmpresasEmpresaIdRoute
   '/empresas/': typeof EmpresasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendario' | '/obligaciones' | '/empresas/'
+  fullPaths:
+    | '/'
+    | '/calendario'
+    | '/obligaciones'
+    | '/empresas/$empresaId'
+    | '/empresas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendario' | '/obligaciones' | '/empresas'
-  id: '__root__' | '/' | '/calendario' | '/obligaciones' | '/empresas/'
+  to:
+    '/' | '/calendario' | '/obligaciones' | '/empresas/$empresaId' | '/empresas'
+  id:
+    | '__root__'
+    | '/'
+    | '/calendario'
+    | '/obligaciones'
+    | '/empresas/$empresaId'
+    | '/empresas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarioRoute: typeof CalendarioRoute
   ObligacionesRoute: typeof ObligacionesRoute
+  EmpresasEmpresaIdRoute: typeof EmpresasEmpresaIdRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
 }
 
@@ -99,6 +121,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empresas/$empresaId': {
+      id: '/empresas/$empresaId'
+      path: '/empresas/$empresaId'
+      fullPath: '/empresas/$empresaId'
+      preLoaderRoute: typeof EmpresasEmpresaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -106,8 +135,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarioRoute: CalendarioRoute,
   ObligacionesRoute: ObligacionesRoute,
+  EmpresasEmpresaIdRoute: EmpresasEmpresaIdRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
