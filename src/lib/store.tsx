@@ -17,7 +17,12 @@ async function cargarTodo(): Promise<Data> {
     throw empresas.error ?? ejercicios.error ?? obligaciones.error;
   }
   return {
-    empresas: (empresas.data ?? []).map((e) => ({ id: e.id, nombre: e.nombre, cuit: e.cuit })),
+    empresas: (empresas.data ?? []).map((e) => ({
+      id: e.id,
+      nombre: e.nombre,
+      cuit: e.cuit,
+      responsable: e.responsable ?? "",
+    })),
     ejercicios: (ejercicios.data ?? []).map((e) => ({
       id: e.id,
       empresaId: e.empresa_id,
@@ -28,7 +33,6 @@ async function cargarTodo(): Promise<Data> {
       ejercicioId: o.ejercicio_id,
       tipo: o.tipo,
       vencimiento: o.vencimiento,
-      responsable: o.responsable,
       estado: o.estado as Estado,
       presentacion: o.presentacion ?? undefined,
       observaciones: o.observaciones ?? undefined,
@@ -60,8 +64,13 @@ export function useStore() {
       guardarEmpresa: (e: Omit<Empresa, "id"> & { id?: string }) =>
         mutar.mutate(() =>
           e.id
-            ? supabase.from("empresas").update({ nombre: e.nombre, cuit: e.cuit }).eq("id", e.id)
-            : supabase.from("empresas").insert({ nombre: e.nombre, cuit: e.cuit }),
+            ? supabase
+                .from("empresas")
+                .update({ nombre: e.nombre, cuit: e.cuit, responsable: e.responsable })
+                .eq("id", e.id)
+            : supabase
+                .from("empresas")
+                .insert({ nombre: e.nombre, cuit: e.cuit, responsable: e.responsable }),
         ),
       eliminarEmpresa: (id: string) => mutar.mutate(() => supabase.from("empresas").delete().eq("id", id)),
       guardarEjercicio: (e: Omit<Ejercicio, "id"> & { id?: string }) =>
@@ -77,7 +86,6 @@ export function useStore() {
           ejercicio_id: o.ejercicioId,
           tipo: o.tipo,
           vencimiento: o.vencimiento,
-          responsable: o.responsable,
           estado: o.estado,
           presentacion: o.presentacion ?? null,
           observaciones: o.observaciones ?? null,

@@ -22,7 +22,6 @@ import {
 import { useStore } from "@/lib/store";
 import {
   ESTADOS,
-  RESPONSABLES,
   TIPOS_PRESENTACION,
   formatCierre,
   type Estado,
@@ -34,15 +33,22 @@ type Props = {
   onOpenChange: (v: boolean) => void;
   obligacion?: Obligacion | null;
   ejercicioIdInicial?: string;
+  /** Cuando el ejercicio ya está determinado por el contexto, no se ofrece el selector. */
+  ejercicioFijo?: boolean;
 };
 
-export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdInicial }: Props) {
+export function ObligacionDialog({
+  open,
+  onOpenChange,
+  obligacion,
+  ejercicioIdInicial,
+  ejercicioFijo,
+}: Props) {
   const { data, guardarObligacion } = useStore();
   const [form, setForm] = useState({
     ejercicioId: "",
     tipo: TIPOS_PRESENTACION[0] as string,
     vencimiento: "",
-    responsable: RESPONSABLES[0],
     estado: "Pendiente" as Estado,
     presentacion: "",
     observaciones: "",
@@ -54,7 +60,6 @@ export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdIn
       ejercicioId: obligacion?.ejercicioId ?? ejercicioIdInicial ?? data.ejercicios[0]?.id ?? "",
       tipo: obligacion?.tipo ?? TIPOS_PRESENTACION[0],
       vencimiento: obligacion?.vencimiento ?? "",
-      responsable: obligacion?.responsable ?? RESPONSABLES[0],
       estado: obligacion?.estado ?? "Pendiente",
       presentacion: obligacion?.presentacion ?? "",
       observaciones: obligacion?.observaciones ?? "",
@@ -75,7 +80,6 @@ export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdIn
       ejercicioId: form.ejercicioId,
       tipo: form.tipo,
       vencimiento: form.vencimiento,
-      responsable: form.responsable,
       estado: form.estado,
       presentacion: form.presentacion || undefined,
       observaciones: form.observaciones || undefined,
@@ -90,11 +94,12 @@ export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdIn
         <DialogHeader>
           <DialogTitle>{obligacion ? "Editar obligación" : "Nueva obligación"}</DialogTitle>
           <DialogDescription>
-            Registrá el tipo de presentación, la fecha de vencimiento y el responsable.
+            Registrá el tipo de presentación, la fecha de vencimiento y el estado.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4">
+          {!ejercicioFijo && (
           <div className="grid gap-2">
             <Label>Empresa y ejercicio fiscal</Label>
             <Select
@@ -113,6 +118,7 @@ export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdIn
               </SelectContent>
             </Select>
           </div>
+          )}
 
           <div className="grid gap-2">
             <Label>Tipo de presentación</Label>
@@ -151,25 +157,7 @@ export function ObligacionDialog({ open, onOpenChange, obligacion, ejercicioIdIn
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label>Responsable</Label>
-              <Select
-                value={form.responsable}
-                onValueChange={(v) => setForm((f) => ({ ...f, responsable: v }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {RESPONSABLES.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid gap-4">
             <div className="grid gap-2">
               <Label>Estado</Label>
               <Select

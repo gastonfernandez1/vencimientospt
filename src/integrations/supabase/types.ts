@@ -49,18 +49,21 @@ export type Database = {
           cuit: string
           id: string
           nombre: string
+          responsable: string
         }
         Insert: {
           created_at?: string
           cuit?: string
           id?: string
           nombre: string
+          responsable?: string
         }
         Update: {
           created_at?: string
           cuit?: string
           id?: string
           nombre?: string
+          responsable?: string
         }
         Relationships: []
       }
@@ -72,7 +75,6 @@ export type Database = {
           id: string
           observaciones: string | null
           presentacion: string | null
-          responsable: string
           tipo: string
           updated_at: string
           vencimiento: string
@@ -84,7 +86,6 @@ export type Database = {
           id?: string
           observaciones?: string | null
           presentacion?: string | null
-          responsable?: string
           tipo: string
           updated_at?: string
           vencimiento: string
@@ -96,7 +97,6 @@ export type Database = {
           id?: string
           observaciones?: string | null
           presentacion?: string | null
-          responsable?: string
           tipo?: string
           updated_at?: string
           vencimiento?: string
