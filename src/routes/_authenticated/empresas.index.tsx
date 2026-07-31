@@ -15,7 +15,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useObligacionesEnriquecidas, useStore } from "@/lib/store";
-import { semaforoDe } from "@/lib/domain";
+import { RESPONSABLES, semaforoDe } from "@/lib/domain";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/empresas/")({
   head: () => ({
@@ -38,13 +45,17 @@ function EmpresasPage() {
   const [abierto, setAbierto] = useState(false);
   const [nombre, setNombre] = useState("");
   const [cuit, setCuit] = useState("");
+  const [responsable, setResponsable] = useState(RESPONSABLES[0]);
   const [busqueda, setBusqueda] = useState("");
 
   const empresasFiltradas = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     const lista = q
       ? data.empresas.filter(
-          (e) => e.nombre.toLowerCase().includes(q) || e.cuit.toLowerCase().includes(q),
+          (e) =>
+            e.nombre.toLowerCase().includes(q) ||
+            e.cuit.toLowerCase().includes(q) ||
+            e.responsable.toLowerCase().includes(q),
         )
       : data.empresas;
     return [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
@@ -57,10 +68,11 @@ function EmpresasPage() {
       });
       return;
     }
-    guardarEmpresa({ nombre: nombre.trim(), cuit: cuit.trim() });
+    guardarEmpresa({ nombre: nombre.trim(), cuit: cuit.trim(), responsable });
     toast.success("Los cambios fueron guardados correctamente.");
     setNombre("");
     setCuit("");
+    setResponsable(RESPONSABLES[0]);
     setAbierto(false);
   }
 
@@ -83,7 +95,7 @@ function EmpresasPage() {
       </div>
 
       <Input
-        placeholder="Buscar por nombre o CUIT..."
+        placeholder="Buscar por nombre, CUIT o responsable..."
         value={busqueda}
         onChange={(ev) => setBusqueda(ev.target.value)}
         className="max-w-sm"
@@ -116,6 +128,9 @@ function EmpresasPage() {
                   <span className="min-w-0 flex-1 truncate font-medium">{e.nombre}</span>
                   <span className="hidden w-36 shrink-0 text-xs text-muted-foreground sm:block">
                     {e.cuit || "—"}
+                  </span>
+                  <span className="hidden w-40 shrink-0 truncate text-xs text-muted-foreground lg:block">
+                    {e.responsable || "Sin responsable"}
                   </span>
                   <span className="hidden w-28 shrink-0 text-xs text-muted-foreground md:block">
                     {ejercicios} ejerc.
@@ -151,7 +166,9 @@ function EmpresasPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Nueva empresa</DialogTitle>
-            <DialogDescription>Cargá el nombre y el CUIT del cliente.</DialogDescription>
+            <DialogDescription>
+              Cargá el nombre, el CUIT y el responsable del cliente.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -166,6 +183,21 @@ function EmpresasPage() {
                 value={cuit}
                 onChange={(ev) => setCuit(ev.target.value)}
               />
+            </div>
+            <div className="grid gap-2">
+              <Label>Responsable</Label>
+              <Select value={responsable} onValueChange={setResponsable}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RESPONSABLES.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
