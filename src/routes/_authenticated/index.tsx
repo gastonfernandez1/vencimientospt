@@ -44,10 +44,10 @@ function Dashboard() {
     const presentadas = obligaciones.filter((o) => o.estado === "Presentado");
     const porResponsable = new Map<string, { total: number; vencidas: number }>();
     pendientes.forEach((o) => {
-      const cur = porResponsable.get(o.responsable) ?? { total: 0, vencidas: 0 };
+      const cur = porResponsable.get(o.empresa.responsable) ?? { total: 0, vencidas: 0 };
       cur.total += 1;
       if (semaforoDe(o) === "vencido") cur.vencidas += 1;
-      porResponsable.set(o.responsable, cur);
+      porResponsable.set(o.empresa.responsable, cur);
     });
     return {
       pendientes,
@@ -229,7 +229,7 @@ function PanelVencimientos({
               <p className="truncate font-display text-base font-semibold">{o.empresa.nombre}</p>
               <p className="truncate text-sm text-foreground/80">{o.tipo}</p>
               <p className="truncate text-xs text-muted-foreground">
-                Cierre {formatCierre(o.ejercicio.cierre)} · {o.responsable}
+                Cierre {formatCierre(o.ejercicio.cierre)} · {o.empresa.responsable}
               </p>
             </div>
             <div className="text-right">

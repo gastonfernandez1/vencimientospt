@@ -80,7 +80,7 @@ function valorDe(o: VistaObligacion, campo: Campo): string {
     case "presentacion":
       return o.presentacion ?? "";
     case "responsable":
-      return o.responsable;
+      return o.empresa.responsable;
     case "estado":
       return o.estado;
   }
@@ -152,14 +152,14 @@ function ObligacionesPage() {
     const q = busqueda.trim().toLowerCase();
     if (
       q &&
-      ![o.empresa.nombre, o.empresa.cuit, o.tipo, o.responsable, o.observaciones ?? ""]
+      ![o.empresa.nombre, o.empresa.cuit, o.tipo, o.empresa.responsable, o.observaciones ?? ""]
         .join(" ")
         .toLowerCase()
         .includes(q)
     )
       return false;
     if (empresa !== TODOS && o.empresa.id !== empresa) return false;
-    if (responsable !== TODOS && o.responsable !== responsable) return false;
+    if (responsable !== TODOS && o.empresa.responsable !== responsable) return false;
     if (estado !== TODOS && o.estado !== estado) return false;
     if (tipo !== TODOS && o.tipo !== tipo) return false;
     if (cierre !== TODOS && o.ejercicio.cierre.slice(0, 7) !== cierre) return false;
@@ -327,7 +327,7 @@ function ObligacionesPage() {
                     <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
                   </TableCell>
                   <TableCell className="text-sm">{formatFecha(o.presentacion)}</TableCell>
-                  <TableCell className="text-sm">{o.responsable}</TableCell>
+                  <TableCell className="text-sm">{o.empresa.responsable}</TableCell>
                   <TableCell>
                     <Select
                       value={o.estado}

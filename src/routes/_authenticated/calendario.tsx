@@ -177,7 +177,7 @@ function CalendarioPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{o.empresa.nombre}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {o.tipo} · {o.responsable} · {o.estado}
+                    {o.tipo} · {o.empresa.responsable} · {o.estado}
                   </p>
                 </div>
               </div>
