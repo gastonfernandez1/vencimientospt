@@ -14,10 +14,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EstadoBadge, SemaforoBadge } from "@/components/app/badges";
+import { SemaforoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useStore } from "@/lib/store";
-import { desdeMes, formatCierre, formatFecha, textoDias, type Obligacion } from "@/lib/domain";
+import {
+  RESPONSABLES,
+  desdeMes,
+  formatFY,
+  formatFecha,
+  type Obligacion,
+} from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/empresas/$empresaId")({
   head: () => ({
@@ -46,6 +59,7 @@ function EmpresaDetalle() {
   const [editandoEmpresa, setEditandoEmpresa] = useState(false);
   const [nombre, setNombre] = useState("");
   const [cuit, setCuit] = useState("");
+  const [responsable, setResponsable] = useState(RESPONSABLES[0]);
   const [obligacionAbierta, setObligacionAbierta] = useState(false);
   const [obligacionEditada, setObligacionEditada] = useState<Obligacion | null>(null);
   const [ejercicioActivo, setEjercicioActivo] = useState<string | undefined>();
@@ -82,7 +96,9 @@ function EmpresaDetalle() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold">{empresa.nombre}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">CUIT {empresa.cuit || "—"}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            CUIT {empresa.cuit || "—"} · Responsable: {empresa.responsable || "sin asignar"}
+          </p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -90,6 +106,7 @@ function EmpresaDetalle() {
             onClick={() => {
               setNombre(empresa.nombre);
               setCuit(empresa.cuit);
+              setResponsable(empresa.responsable || RESPONSABLES[0]);
               setEditandoEmpresa(true);
             }}
           >
@@ -120,9 +137,7 @@ function EmpresaDetalle() {
         return (
           <Card key={ej.id}>
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-              <CardTitle className="text-base">
-                Ejercicio fiscal · cierre {formatCierre(ej.cierre)}
-              </CardTitle>
+              <CardTitle className="text-base">{formatFY(ej.cierre)}</CardTitle>
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -160,20 +175,17 @@ function EmpresaDetalle() {
                   className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
                 >
                   <SemaforoBadge obligacion={o} />
-                  <div className="min-w-[200px] flex-1">
-                    <p className="font-medium">{o.tipo}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {o.responsable}
-                      {o.observaciones ? ` · ${o.observaciones}` : ""}
-                    </p>
-                  </div>
+                  <p className="min-w-[200px] flex-1 font-medium">{o.tipo}</p>
                   <div className="text-sm">
-                    <p className="font-medium">Vence {formatFecha(o.vencimiento)}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {textoDias(o)} · Presentado: {formatFecha(o.presentacion)}
-                    </p>
+                    <p className="text-xs text-muted-foreground">Vencimiento</p>
+                    <p className="font-medium">{formatFecha(o.vencimiento)}</p>
                   </div>
-                  <EstadoBadge estado={o.estado} />
+                  {o.presentacion && (
+                    <div className="text-sm">
+                      <p className="text-xs text-muted-foreground">Presentación</p>
+                      <p className="font-medium">{formatFecha(o.presentacion)}</p>
+                    </div>
+                  )}
                   <div className="ml-auto flex">
                     <Button
                       size="icon"
@@ -246,7 +258,9 @@ function EmpresaDetalle() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Editar empresa</DialogTitle>
-            <DialogDescription>Actualizá el nombre o el CUIT del cliente.</DialogDescription>
+            <DialogDescription>
+              Actualizá el nombre, el CUIT o el responsable del cliente.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -257,6 +271,21 @@ function EmpresaDetalle() {
               <Label htmlFor="c">CUIT</Label>
               <Input id="c" value={cuit} onChange={(e) => setCuit(e.target.value)} />
             </div>
+            <div className="grid gap-2">
+              <Label>Responsable</Label>
+              <Select value={responsable} onValueChange={setResponsable}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RESPONSABLES.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditandoEmpresa(false)}>
@@ -264,7 +293,12 @@ function EmpresaDetalle() {
             </Button>
             <Button
               onClick={() => {
-                guardarEmpresa({ id: empresa.id, nombre: nombre.trim(), cuit: cuit.trim() });
+                guardarEmpresa({
+                  id: empresa.id,
+                  nombre: nombre.trim(),
+                  cuit: cuit.trim(),
+                  responsable,
+                });
                 toast.success("Los cambios fueron guardados correctamente.");
                 setEditandoEmpresa(false);
               }}
@@ -280,6 +314,7 @@ function EmpresaDetalle() {
         onOpenChange={setObligacionAbierta}
         obligacion={obligacionEditada}
         ejercicioIdInicial={ejercicioActivo}
+        ejercicioFijo
       />
     </div>
   );
