@@ -139,7 +139,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <>
         <div className="min-h-screen bg-background">
-          {!esAuth && <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+          <header
+            className={`sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur ${
+              esAuth ? "hidden" : ""
+            }`}
+          >
             <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-3">
               <Link to="/" className="flex items-center gap-2">
                 <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -174,7 +178,7 @@ function RootComponent() {
                 Salir
               </button>
             </div>
-          </header>}
+          </header>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <main className="mx-auto max-w-7xl px-4 py-8">
             <Outlet />

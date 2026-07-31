@@ -138,9 +138,22 @@ function CalendarioPage() {
                   </span>
                   <div className="mt-1 space-y-1">
                     {items.slice(0, 3).map((o) => (
-                      <div key={o.id} className="flex items-center gap-1">
-                        <span className={`size-1.5 shrink-0 rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
-                        <span className="truncate text-[11px] leading-tight">{o.empresa.nombre}</span>
+                      <div
+                        key={o.id}
+                        className="flex items-start gap-1 rounded-sm bg-secondary/50 px-1 py-0.5"
+                        title={`${o.empresa.nombre} — ${o.tipo}`}
+                      >
+                        <span
+                          className={`mt-1 size-1.5 shrink-0 rounded-full ${puntoSemaforo(semaforoDe(o))}`}
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate text-[11px] font-medium leading-tight">
+                            {o.empresa.nombre}
+                          </span>
+                          <span className="block truncate text-[10px] leading-tight text-muted-foreground">
+                            {o.tipo}
+                          </span>
+                        </span>
                       </div>
                     ))}
                     {items.length > 3 && (
