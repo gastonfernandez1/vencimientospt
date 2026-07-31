@@ -132,19 +132,10 @@ function Dashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <ListaObligaciones
-          titulo="Obligaciones vencidas"
-          vacio="No hay obligaciones vencidas. Buen trabajo."
-          items={resumen.vencidas}
-        />
-        <ListaObligaciones
-          titulo="Próximos vencimientos"
-          vacio="No hay vencimientos próximos."
-          items={resumen.pendientes
-            .filter((o) => semaforoDe(o) !== "vencido")
-            .slice(0, 8)}
-        />
-      </div>
+      <PanelVencimientos
+        vencidas={resumen.vencidas}
+        proximas={resumen.pendientes.filter((o) => semaforoDe(o) !== "vencido")}
+      />
 
       <Card>
         <CardHeader className="flex-row items-center justify-between">
@@ -175,6 +166,82 @@ function Dashboard() {
 
       <ObligacionDialog open={abierto} onOpenChange={setAbierto} />
     </div>
+  );
+}
+
+function PanelVencimientos({
+  vencidas,
+  proximas,
+}: {
+  vencidas: VistaObligacion[];
+  proximas: VistaObligacion[];
+}) {
+  const [vista, setVista] = useState<"proximos" | "vencidos">(
+    vencidas.length > 0 ? "vencidos" : "proximos",
+  );
+  const items = vista === "vencidos" ? vencidas : proximas;
+
+  return (
+    <Card>
+      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">
+        <CardTitle className="text-base">
+          {vista === "vencidos" ? "Obligaciones vencidas" : "Próximos vencimientos"}
+        </CardTitle>
+        <div className="inline-flex rounded-lg border border-border bg-secondary/50 p-1">
+          {(
+            [
+              ["proximos", `Próximos (${proximas.length})`],
+              ["vencidos", `Vencidos (${vencidas.length})`],
+            ] as const
+          ).map(([valor, etiqueta]) => (
+            <button
+              key={valor}
+              type="button"
+              onClick={() => setVista(valor)}
+              aria-pressed={vista === valor}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                vista === valor
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {etiqueta}
+            </button>
+          ))}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {items.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            {vista === "vencidos"
+              ? "No hay obligaciones vencidas. Buen trabajo."
+              : "No hay vencimientos próximos."}
+          </p>
+        )}
+        {items.map((o) => (
+          <Link
+            key={o.id}
+            to="/empresas/$empresaId"
+            params={{ empresaId: o.empresa.id }}
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-secondary/60"
+          >
+            <span className={`h-12 w-1.5 rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-display text-base font-semibold">{o.empresa.nombre}</p>
+              <p className="truncate text-sm text-foreground/80">{o.tipo}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                Cierre {formatCierre(o.ejercicio.cierre)} · {o.responsable}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-medium">{formatFecha(o.vencimiento)}</p>
+              <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
+            </div>
+            <EstadoBadge estado={o.estado} />
+          </Link>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 
