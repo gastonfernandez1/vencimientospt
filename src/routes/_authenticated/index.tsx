@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EstadoBadge, puntoSemaforo } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
-import { formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
+import { formatCierre, formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
