@@ -20,14 +20,13 @@ export const RESPONSABLES = [
   "Lucía Fernández",
 ];
 
-export type Empresa = { id: string; nombre: string; cuit: string };
+export type Empresa = { id: string; nombre: string; cuit: string; responsable: string };
 export type Ejercicio = { id: string; empresaId: string; cierre: string };
 export type Obligacion = {
   id: string;
   ejercicioId: string;
   tipo: string;
   vencimiento: string;
-  responsable: string;
   estado: Estado;
   presentacion?: string;
   observaciones?: string;
@@ -70,6 +69,11 @@ export function formatCierre(value?: string): string {
   if (!value) return "—";
   const d = parseISO(value);
   return d.toLocaleDateString("es-AR", { month: "2-digit", year: "numeric" });
+}
+
+/** Título de ejercicio fiscal (ej. "FY 12/2025"). */
+export function formatFY(value?: string): string {
+  return value ? `FY ${formatCierre(value)}` : "FY —";
 }
 
 /** "2025-06-30" -> "2025-06" (valor para <input type="month">) */
