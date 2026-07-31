@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -38,6 +38,17 @@ function EmpresasPage() {
   const [abierto, setAbierto] = useState(false);
   const [nombre, setNombre] = useState("");
   const [cuit, setCuit] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+
+  const empresasFiltradas = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    const lista = q
+      ? data.empresas.filter(
+          (e) => e.nombre.toLowerCase().includes(q) || e.cuit.toLowerCase().includes(q),
+        )
+      : data.empresas;
+    return [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  }, [data.empresas, busqueda]);
 
   function crear() {
     if (!nombre.trim()) {
@@ -71,6 +82,13 @@ function EmpresasPage() {
         </Button>
       </div>
 
+      <Input
+        placeholder="Buscar por nombre o CUIT..."
+        value={busqueda}
+        onChange={(ev) => setBusqueda(ev.target.value)}
+        className="max-w-sm"
+      />
+
       {data.empresas.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card py-16 text-center">
           <p className="text-lg font-semibold">Todavía no hay empresas cargadas.</p>
@@ -79,46 +97,54 @@ function EmpresasPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {data.empresas.map((e) => {
+        <Card className="divide-y divide-border overflow-hidden py-0">
+          {empresasFiltradas.map((e) => {
             const propias = obligaciones.filter((o) => o.empresa.id === e.id);
             const vencidas = propias.filter((o) => semaforoDe(o) === "vencido").length;
             const ejercicios = data.ejercicios.filter((x) => x.empresaId === e.id).length;
             return (
-              <Card key={e.id}>
-                <CardContent className="space-y-3 pt-6">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate font-display text-lg font-semibold">{e.nombre}</p>
-                      <p className="text-xs text-muted-foreground">CUIT {e.cuit || "—"}</p>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label="Eliminar empresa"
-                      onClick={() => {
-                        eliminarEmpresa(e.id);
-                        toast.success("Los cambios fueron guardados correctamente.");
-                      }}
-                    >
-                      <Trash2 className="size-4 text-vencido" />
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {ejercicios} ejercicio{ejercicios === 1 ? "" : "s"} · {propias.length} obligación
-                    {propias.length === 1 ? "" : "es"}
-                    {vencidas > 0 && <span className="text-vencido"> · {vencidas} vencida(s)</span>}
-                  </p>
-                  <Button asChild variant="secondary" className="w-full">
-                    <Link to="/empresas/$empresaId" params={{ empresaId: e.id }}>
-                      <Building2 className="size-4" /> Ver detalle
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <div
+                key={e.id}
+                className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-secondary/50"
+              >
+                <Link
+                  to="/empresas/$empresaId"
+                  params={{ empresaId: e.id }}
+                  className="flex min-w-0 flex-1 items-center gap-3"
+                >
+                  <Building2 className="size-4 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate font-medium">{e.nombre}</span>
+                  <span className="hidden w-36 shrink-0 text-xs text-muted-foreground sm:block">
+                    {e.cuit || "—"}
+                  </span>
+                  <span className="hidden w-28 shrink-0 text-xs text-muted-foreground md:block">
+                    {ejercicios} ejerc.
+                  </span>
+                  <span className="w-32 shrink-0 text-right text-xs text-muted-foreground">
+                    {propias.length} oblig.
+                    {vencidas > 0 && <span className="text-vencido"> · {vencidas} venc.</span>}
+                  </span>
+                </Link>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  aria-label="Eliminar empresa"
+                  onClick={() => {
+                    eliminarEmpresa(e.id);
+                    toast.success("Los cambios fueron guardados correctamente.");
+                  }}
+                >
+                  <Trash2 className="size-4 text-vencido" />
+                </Button>
+              </div>
             );
           })}
-        </div>
+          {empresasFiltradas.length === 0 && (
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              No hay empresas que coincidan con la búsqueda.
+            </p>
+          )}
+        </Card>
       )}
 
       <Dialog open={abierto} onOpenChange={setAbierto}>
