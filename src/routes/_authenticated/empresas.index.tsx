@@ -15,7 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useObligacionesEnriquecidas, useStore } from "@/lib/store";
-import { RESPONSABLES, semaforoDe } from "@/lib/domain";
+import { semaforoDe } from "@/lib/domain";
+import { ResponsableIniciales } from "@/components/app/badges";
 import {
   Select,
   SelectContent,
@@ -40,12 +41,12 @@ export const Route = createFileRoute("/_authenticated/empresas/")({
 });
 
 function EmpresasPage() {
-  const { cargando, data, guardarEmpresa, eliminarEmpresa } = useStore();
+  const { cargando, data, esAdmin, guardarEmpresa, eliminarEmpresa } = useStore();
   const obligaciones = useObligacionesEnriquecidas();
   const [abierto, setAbierto] = useState(false);
   const [nombre, setNombre] = useState("");
   const [cuit, setCuit] = useState("");
-  const [responsable, setResponsable] = useState(RESPONSABLES[0]);
+  const [responsable, setResponsable] = useState("");
   const [busqueda, setBusqueda] = useState("");
 
   const empresasFiltradas = useMemo(() => {
@@ -72,7 +73,7 @@ function EmpresasPage() {
     toast.success("Los cambios fueron guardados correctamente.");
     setNombre("");
     setCuit("");
-    setResponsable(RESPONSABLES[0]);
+    setResponsable("");
     setAbierto(false);
   }
 
@@ -89,9 +90,11 @@ function EmpresasPage() {
             {data.empresas.length} cliente{data.empresas.length === 1 ? "" : "s"} en seguimiento
           </p>
         </div>
-        <Button onClick={() => setAbierto(true)}>
-          <Plus className="size-4" /> Agregar empresa
-        </Button>
+        {esAdmin && (
+          <Button onClick={() => setAbierto(true)}>
+            <Plus className="size-4" /> Agregar empresa
+          </Button>
+        )}
       </div>
 
       <Input
@@ -104,9 +107,11 @@ function EmpresasPage() {
       {data.empresas.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card py-16 text-center">
           <p className="text-lg font-semibold">Todavía no hay empresas cargadas.</p>
-          <Button className="mt-4" onClick={() => setAbierto(true)}>
-            Agregar empresa
-          </Button>
+          {esAdmin && (
+            <Button className="mt-4" onClick={() => setAbierto(true)}>
+              Agregar empresa
+            </Button>
+          )}
         </div>
       ) : (
         <Card className="divide-y divide-border overflow-hidden py-0">
@@ -129,8 +134,8 @@ function EmpresasPage() {
                   <span className="hidden w-36 shrink-0 text-xs text-muted-foreground sm:block">
                     {e.cuit || "—"}
                   </span>
-                  <span className="hidden w-40 shrink-0 truncate text-xs text-muted-foreground lg:block">
-                    {e.responsable || "Sin responsable"}
+                  <span className="hidden w-20 shrink-0 lg:block">
+                    <ResponsableIniciales nombre={e.responsable} />
                   </span>
                   <span className="hidden w-28 shrink-0 text-xs text-muted-foreground md:block">
                     {ejercicios} ejerc.
@@ -140,17 +145,19 @@ function EmpresasPage() {
                     {vencidas > 0 && <span className="text-vencido"> · {vencidas} venc.</span>}
                   </span>
                 </Link>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  aria-label="Eliminar empresa"
-                  onClick={() => {
-                    eliminarEmpresa(e.id);
-                    toast.success("Los cambios fueron guardados correctamente.");
-                  }}
-                >
-                  <Trash2 className="size-4 text-vencido" />
-                </Button>
+                {esAdmin && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Eliminar empresa"
+                    onClick={() => {
+                      eliminarEmpresa(e.id);
+                      toast.success("Los cambios fueron guardados correctamente.");
+                    }}
+                  >
+                    <Trash2 className="size-4 text-vencido" />
+                  </Button>
+                )}
               </div>
             );
           })}
@@ -188,12 +195,12 @@ function EmpresasPage() {
               <Label>Responsable</Label>
               <Select value={responsable} onValueChange={setResponsable}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Elegí un responsable" />
                 </SelectTrigger>
                 <SelectContent>
-                  {RESPONSABLES.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
+                  {data.responsables.map((r) => (
+                    <SelectItem key={r.id} value={r.nombre}>
+                      {r.nombre}
                     </SelectItem>
                   ))}
                 </SelectContent>
