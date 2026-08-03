@@ -69,6 +69,20 @@
   --color-planificado-soft: var(--planificado-soft);
   --color-presentado: var(--presentado);
   --color-presentado-soft: var(--presentado-soft);
+  --color-tipo-1: var(--tipo-1);
+  --color-tipo-1-soft: var(--tipo-1-soft);
+  --color-tipo-2: var(--tipo-2);
+  --color-tipo-2-soft: var(--tipo-2-soft);
+  --color-tipo-3: var(--tipo-3);
+  --color-tipo-3-soft: var(--tipo-3-soft);
+  --color-tipo-4: var(--tipo-4);
+  --color-tipo-4-soft: var(--tipo-4-soft);
+  --color-tipo-5: var(--tipo-5);
+  --color-tipo-5-soft: var(--tipo-5-soft);
+  --color-tipo-6: var(--tipo-6);
+  --color-tipo-6-soft: var(--tipo-6-soft);
+  --color-tipo-7: var(--tipo-7);
+  --color-tipo-7-soft: var(--tipo-7-soft);
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 }
