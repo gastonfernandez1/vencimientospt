@@ -69,6 +69,11 @@ async function cargarEsAdmin(): Promise<boolean> {
   return Boolean(data);
 }
 
+export function useEsAdmin(): boolean {
+  const { data } = useQuery({ queryKey: ["rol-admin"], queryFn: cargarEsAdmin });
+  return data ?? false;
+}
+
 function useStoreInterno() {
   const queryClient = useQueryClient();
   const { data, isPending, isError } = useQuery({ queryKey: ["datos"], queryFn: cargarTodo });
