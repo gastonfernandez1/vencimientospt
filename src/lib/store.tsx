@@ -2,21 +2,32 @@ import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import type { Empresa, Ejercicio, Obligacion, Estado } from "./domain";
+import type { Empresa, Ejercicio, Obligacion, Estado, Responsable } from "./domain";
 
-type Data = { empresas: Empresa[]; ejercicios: Ejercicio[]; obligaciones: Obligacion[] };
-const vacio: Data = { empresas: [], ejercicios: [], obligaciones: [] };
+type Data = {
+  empresas: Empresa[];
+  ejercicios: Ejercicio[];
+  obligaciones: Obligacion[];
+  responsables: Responsable[];
+};
+const vacio: Data = { empresas: [], ejercicios: [], obligaciones: [], responsables: [] };
 
 async function cargarTodo(): Promise<Data> {
-  const [empresas, ejercicios, obligaciones] = await Promise.all([
+  const [empresas, ejercicios, obligaciones, responsables] = await Promise.all([
     supabase.from("empresas").select("*").order("nombre"),
     supabase.from("ejercicios").select("*").order("cierre", { ascending: false }),
     supabase.from("obligaciones").select("*").order("vencimiento"),
+    supabase.from("responsables").select("*").order("nombre"),
   ]);
-  if (empresas.error || ejercicios.error || obligaciones.error) {
-    throw empresas.error ?? ejercicios.error ?? obligaciones.error;
+  if (empresas.error || ejercicios.error || obligaciones.error || responsables.error) {
+    throw empresas.error ?? ejercicios.error ?? obligaciones.error ?? responsables.error;
   }
   return {
+    responsables: (responsables.data ?? []).map((r) => ({
+      id: r.id,
+      nombre: r.nombre,
+      activo: r.activo,
+    })),
     empresas: (empresas.data ?? []).map((e) => ({
       id: e.id,
       nombre: e.nombre,
@@ -41,8 +52,32 @@ async function cargarTodo(): Promise<Data> {
 }
 
 export function useStore() {
+  return useStoreInterno();
+}
+
+async function cargarEsAdmin(): Promise<boolean> {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return false;
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", uid)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) return false;
+  return Boolean(data);
+}
+
+export function useEsAdmin(): boolean {
+  const { data } = useQuery({ queryKey: ["rol-admin"], queryFn: cargarEsAdmin });
+  return data ?? false;
+}
+
+function useStoreInterno() {
   const queryClient = useQueryClient();
   const { data, isPending, isError } = useQuery({ queryKey: ["datos"], queryFn: cargarTodo });
+  const { data: esAdmin } = useQuery({ queryKey: ["rol-admin"], queryFn: cargarEsAdmin });
 
   const mutar = useMutation({
     mutationFn: async (accion: () => PromiseLike<{ error: unknown }>) => {
@@ -61,6 +96,18 @@ export function useStore() {
       cargando: isPending,
       error: isError,
       data: data ?? vacio,
+      esAdmin: esAdmin ?? false,
+      guardarResponsable: (r: { id?: string; nombre: string; activo?: boolean }) =>
+        mutar.mutate(() =>
+          r.id
+            ? supabase
+                .from("responsables")
+                .update({ nombre: r.nombre, activo: r.activo ?? true })
+                .eq("id", r.id)
+            : supabase.from("responsables").insert({ nombre: r.nombre }),
+        ),
+      eliminarResponsable: (id: string) =>
+        mutar.mutate(() => supabase.from("responsables").delete().eq("id", id)),
       guardarEmpresa: (e: Omit<Empresa, "id"> & { id?: string }) =>
         mutar.mutate(() =>
           e.id
@@ -99,7 +146,7 @@ export function useStore() {
       eliminarObligacion: (id: string) =>
         mutar.mutate(() => supabase.from("obligaciones").delete().eq("id", id)),
     }),
-    [data, isPending, isError, mutar],
+    [data, isPending, isError, mutar, esAdmin],
   );
 }
 

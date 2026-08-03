@@ -69,6 +69,20 @@
   --color-planificado-soft: var(--planificado-soft);
   --color-presentado: var(--presentado);
   --color-presentado-soft: var(--presentado-soft);
+  --color-tipo-1: var(--tipo-1);
+  --color-tipo-1-soft: var(--tipo-1-soft);
+  --color-tipo-2: var(--tipo-2);
+  --color-tipo-2-soft: var(--tipo-2-soft);
+  --color-tipo-3: var(--tipo-3);
+  --color-tipo-3-soft: var(--tipo-3-soft);
+  --color-tipo-4: var(--tipo-4);
+  --color-tipo-4-soft: var(--tipo-4-soft);
+  --color-tipo-5: var(--tipo-5);
+  --color-tipo-5-soft: var(--tipo-5-soft);
+  --color-tipo-6: var(--tipo-6);
+  --color-tipo-6-soft: var(--tipo-6-soft);
+  --color-tipo-7: var(--tipo-7);
+  --color-tipo-7-soft: var(--tipo-7-soft);
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 }
@@ -117,6 +131,21 @@
   --planificado-soft: oklch(0.95 0.02 240);
   --presentado: oklch(0.5 0.11 165);
   --presentado-soft: oklch(0.95 0.04 165);
+  /* Paleta para tipos de presentación (categorías, no urgencia) */
+  --tipo-1: oklch(0.45 0.11 250);
+  --tipo-1-soft: oklch(0.955 0.03 250);
+  --tipo-2: oklch(0.45 0.13 300);
+  --tipo-2-soft: oklch(0.955 0.03 300);
+  --tipo-3: oklch(0.45 0.1 195);
+  --tipo-3-soft: oklch(0.955 0.03 195);
+  --tipo-4: oklch(0.45 0.11 145);
+  --tipo-4-soft: oklch(0.955 0.03 145);
+  --tipo-5: oklch(0.47 0.12 20);
+  --tipo-5-soft: oklch(0.955 0.03 20);
+  --tipo-6: oklch(0.47 0.1 70);
+  --tipo-6-soft: oklch(0.955 0.035 70);
+  --tipo-7: oklch(0.42 0.06 330);
+  --tipo-7-soft: oklch(0.955 0.025 330);
 }
 
 .dark {
@@ -152,6 +181,20 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --tipo-1: oklch(0.8 0.09 250);
+  --tipo-1-soft: oklch(0.3 0.05 250);
+  --tipo-2: oklch(0.8 0.09 300);
+  --tipo-2-soft: oklch(0.3 0.05 300);
+  --tipo-3: oklch(0.8 0.08 195);
+  --tipo-3-soft: oklch(0.3 0.04 195);
+  --tipo-4: oklch(0.8 0.09 145);
+  --tipo-4-soft: oklch(0.3 0.05 145);
+  --tipo-5: oklch(0.8 0.09 20);
+  --tipo-5-soft: oklch(0.3 0.05 20);
+  --tipo-6: oklch(0.82 0.09 70);
+  --tipo-6-soft: oklch(0.3 0.05 70);
+  --tipo-7: oklch(0.8 0.06 330);
+  --tipo-7-soft: oklch(0.3 0.04 330);
 }
 
 @layer base {

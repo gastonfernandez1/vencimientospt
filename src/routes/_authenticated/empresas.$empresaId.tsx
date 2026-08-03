@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SemaforoBadge } from "@/components/app/badges";
+import { SemaforoBadge, TipoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import {
   Select,
@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import { useStore } from "@/lib/store";
 import {
-  RESPONSABLES,
   desdeMes,
   formatFY,
   formatFecha,
@@ -52,14 +51,14 @@ export const Route = createFileRoute("/_authenticated/empresas/$empresaId")({
 
 function EmpresaDetalle() {
   const { empresaId } = Route.useParams();
-  const { cargando, data, guardarEmpresa, guardarEjercicio, eliminarEjercicio, eliminarObligacion } =
+  const { cargando, data, esAdmin, guardarEmpresa, guardarEjercicio, eliminarEjercicio, eliminarObligacion } =
     useStore();
   const [dialogoEjercicio, setDialogoEjercicio] = useState(false);
   const [cierre, setCierre] = useState("");
   const [editandoEmpresa, setEditandoEmpresa] = useState(false);
   const [nombre, setNombre] = useState("");
   const [cuit, setCuit] = useState("");
-  const [responsable, setResponsable] = useState(RESPONSABLES[0]);
+  const [responsable, setResponsable] = useState("");
   const [obligacionAbierta, setObligacionAbierta] = useState(false);
   const [obligacionEditada, setObligacionEditada] = useState<Obligacion | null>(null);
   const [ejercicioActivo, setEjercicioActivo] = useState<string | undefined>();
@@ -100,13 +99,14 @@ function EmpresaDetalle() {
             CUIT {empresa.cuit || "—"} · Responsable: {empresa.responsable || "sin asignar"}
           </p>
         </div>
+        {esAdmin && (
         <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={() => {
               setNombre(empresa.nombre);
               setCuit(empresa.cuit);
-              setResponsable(empresa.responsable || RESPONSABLES[0]);
+              setResponsable(empresa.responsable || "");
               setEditandoEmpresa(true);
             }}
           >
@@ -122,6 +122,7 @@ function EmpresaDetalle() {
             <Plus className="size-4" /> Nuevo ejercicio
           </Button>
         </div>
+        )}
       </div>
 
       {ejercicios.length === 0 && (
@@ -138,6 +139,7 @@ function EmpresaDetalle() {
           <Card key={ej.id}>
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-base">{formatFY(ej.cierre)}</CardTitle>
+              {esAdmin && (
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -162,6 +164,7 @@ function EmpresaDetalle() {
                   <Trash2 className="size-4 text-vencido" />
                 </Button>
               </div>
+              )}
             </CardHeader>
             <CardContent className="space-y-2">
               {obligaciones.length === 0 && (
@@ -175,7 +178,9 @@ function EmpresaDetalle() {
                   className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
                 >
                   <SemaforoBadge obligacion={o} />
-                  <p className="min-w-[200px] flex-1 font-medium">{o.tipo}</p>
+                  <span className="min-w-[200px] flex-1">
+                    <TipoBadge tipo={o.tipo} />
+                  </span>
                   <div className="text-sm">
                     <p className="text-xs text-muted-foreground">Vencimiento</p>
                     <p className="font-medium">{formatFecha(o.vencimiento)}</p>
@@ -199,17 +204,19 @@ function EmpresaDetalle() {
                     >
                       <Pencil className="size-4" />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label="Eliminar obligación"
-                      onClick={() => {
-                        eliminarObligacion(o.id);
-                        toast.success("Los cambios fueron guardados correctamente.");
-                      }}
-                    >
-                      <Trash2 className="size-4 text-vencido" />
-                    </Button>
+                    {esAdmin && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label="Eliminar obligación"
+                        onClick={() => {
+                          eliminarObligacion(o.id);
+                          toast.success("Los cambios fueron guardados correctamente.");
+                        }}
+                      >
+                        <Trash2 className="size-4 text-vencido" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -275,12 +282,12 @@ function EmpresaDetalle() {
               <Label>Responsable</Label>
               <Select value={responsable} onValueChange={setResponsable}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Elegí un responsable" />
                 </SelectTrigger>
                 <SelectContent>
-                  {RESPONSABLES.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
+                  {data.responsables.map((r) => (
+                    <SelectItem key={r.id} value={r.nombre}>
+                      {r.nombre}
                     </SelectItem>
                   ))}
                 </SelectContent>

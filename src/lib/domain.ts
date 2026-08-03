@@ -12,13 +12,26 @@ export type TipoPresentacion = (typeof TIPOS_PRESENTACION)[number];
 export const ESTADOS = ["Pendiente", "En preparación", "En revisión", "Presentado"] as const;
 export type Estado = (typeof ESTADOS)[number];
 
-export const RESPONSABLES = [
-  "Sofía Martínez",
-  "Julián Pereyra",
-  "Carla Domínguez",
-  "Matías Rossi",
-  "Lucía Fernández",
-];
+/** Iniciales de un responsable, ej. "Sofía Martínez" -> "SM". */
+export function iniciales(nombre?: string): string {
+  const partes = (nombre ?? "").trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "—";
+  return partes
+    .slice(0, 2)
+    .map((p) => p[0]!.toUpperCase())
+    .join("");
+}
+
+/** Índice estable (1..7) de color para cada tipo de presentación. */
+export function indiceTipo(tipo: string): number {
+  const i = (TIPOS_PRESENTACION as readonly string[]).indexOf(tipo);
+  if (i >= 0) return (i % 7) + 1;
+  let h = 0;
+  for (const c of tipo) h = (h * 31 + c.charCodeAt(0)) % 7;
+  return h + 1;
+}
+
+export type Responsable = { id: string; nombre: string; activo: boolean };
 
 export type Empresa = { id: string; nombre: string; cuit: string; responsable: string };
 export type Ejercicio = { id: string; empresaId: string; cierre: string };

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedAdministracionRouteImport } from './routes/_authenticated/administracion'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedObligacionesRouteImport } from './routes/_authenticated/obligaciones'
 import { Route as AuthenticatedEmpresasIndexRouteImport } from './routes/_authenticated/empresas.index'
@@ -31,6 +32,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdministracionRoute =
+  AuthenticatedAdministracionRouteImport.update({
+    id: '/administracion',
+    path: '/administracion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
   id: '/calendario',
   path: '/calendario',
@@ -58,6 +65,7 @@ const AuthenticatedEmpresasEmpresaIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/administracion': typeof AuthenticatedAdministracionRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/obligaciones': typeof AuthenticatedObligacionesRoute
   '/empresas/$empresaId': typeof AuthenticatedEmpresasEmpresaIdRoute
@@ -65,6 +73,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/administracion': typeof AuthenticatedAdministracionRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/obligaciones': typeof AuthenticatedObligacionesRoute
   '/': typeof AuthenticatedIndexRoute
@@ -75,6 +84,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/administracion': typeof AuthenticatedAdministracionRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/obligaciones': typeof AuthenticatedObligacionesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/administracion'
     | '/calendario'
     | '/obligaciones'
     | '/empresas/$empresaId'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/administracion'
     | '/calendario'
     | '/obligaciones'
     | '/'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/administracion'
     | '/_authenticated/calendario'
     | '/_authenticated/obligaciones'
     | '/_authenticated/'
@@ -137,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/administracion': {
+      id: '/_authenticated/administracion'
+      path: '/administracion'
+      fullPath: '/administracion'
+      preLoaderRoute: typeof AuthenticatedAdministracionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/calendario': {
       id: '/_authenticated/calendario'
       path: '/calendario'
@@ -169,6 +189,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdministracionRoute: typeof AuthenticatedAdministracionRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedObligacionesRoute: typeof AuthenticatedObligacionesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -177,6 +198,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdministracionRoute: AuthenticatedAdministracionRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedObligacionesRoute: AuthenticatedObligacionesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
