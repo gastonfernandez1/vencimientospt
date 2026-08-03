@@ -21,12 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EstadoBadge, SemaforoBadge } from "@/components/app/badges";
+import { ResponsableIniciales, SemaforoBadge, TipoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import {
   ESTADOS,
-  RESPONSABLES,
   TIPOS_PRESENTACION,
   formatCierre,
   formatFecha,
@@ -115,7 +114,7 @@ function Columna({
 }
 
 function ObligacionesPage() {
-  const { cargando, guardarObligacion, eliminarObligacion } = useStore();
+  const { cargando, data, esAdmin, guardarObligacion, eliminarObligacion } = useStore();
   const obligaciones = useObligacionesEnriquecidas();
   const [busqueda, setBusqueda] = useState("");
   const [empresa, setEmpresa] = useState(TODOS);
@@ -204,14 +203,16 @@ function ObligacionesPage() {
             {ordenadas.length} de {obligaciones.length} obligaciones
           </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditando(null);
-            setAbierto(true);
-          }}
-        >
-          <Plus className="size-4" /> Nueva obligación
-        </Button>
+        {esAdmin && (
+          <Button
+            onClick={() => {
+              setEditando(null);
+              setAbierto(true);
+            }}
+          >
+            <Plus className="size-4" /> Nueva obligación
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -237,9 +238,9 @@ function ObligacionesPage() {
             ))}
           </Filtro>
           <Filtro label="Responsable" value={responsable} onChange={setResponsable}>
-            {RESPONSABLES.map((r) => (
-              <SelectItem key={r} value={r}>
-                {r}
+            {data.responsables.map((r) => (
+              <SelectItem key={r.id} value={r.nombre}>
+                {r.nombre}
               </SelectItem>
             ))}
           </Filtro>
@@ -320,14 +321,18 @@ function ObligacionesPage() {
                     <p className="font-medium">{o.empresa.nombre}</p>
                     <p className="text-xs text-muted-foreground">{o.empresa.cuit}</p>
                   </TableCell>
-                  <TableCell className="max-w-[220px]">{o.tipo}</TableCell>
+                  <TableCell className="max-w-[260px]">
+                    <TipoBadge tipo={o.tipo} />
+                  </TableCell>
                   <TableCell className="text-sm">{formatCierre(o.ejercicio.cierre)}</TableCell>
                   <TableCell>
                     <p className="font-medium">{formatFecha(o.vencimiento)}</p>
                     <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
                   </TableCell>
                   <TableCell className="text-sm">{formatFecha(o.presentacion)}</TableCell>
-                  <TableCell className="text-sm">{o.empresa.responsable}</TableCell>
+                  <TableCell>
+                    <ResponsableIniciales nombre={o.empresa.responsable} />
+                  </TableCell>
                   <TableCell>
                     <Select
                       value={o.estado}
@@ -360,17 +365,19 @@ function ObligacionesPage() {
                     >
                       <Pencil className="size-4" />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label="Eliminar obligación"
-                      onClick={() => {
-                        eliminarObligacion(o.id);
-                        toast.success("Los cambios fueron guardados correctamente.");
-                      }}
-                    >
-                      <Trash2 className="size-4 text-vencido" />
-                    </Button>
+                    {esAdmin && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label="Eliminar obligación"
+                        onClick={() => {
+                          eliminarObligacion(o.id);
+                          toast.success("Los cambios fueron guardados correctamente.");
+                        }}
+                      >
+                        <Trash2 className="size-4 text-vencido" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
