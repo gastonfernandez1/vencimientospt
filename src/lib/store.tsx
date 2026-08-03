@@ -52,6 +52,24 @@ async function cargarTodo(): Promise<Data> {
 }
 
 export function useStore() {
+  return useStoreInterno();
+}
+
+async function cargarEsAdmin(): Promise<boolean> {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return false;
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", uid)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error) return false;
+  return Boolean(data);
+}
+
+function useStoreInterno() {
   const queryClient = useQueryClient();
   const { data, isPending, isError } = useQuery({ queryKey: ["datos"], queryFn: cargarTodo });
   const { data: esAdmin } = useQuery({ queryKey: ["rol-admin"], queryFn: cargarEsAdmin });
