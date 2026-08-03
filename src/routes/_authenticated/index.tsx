@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, CalendarClock, CheckCircle2, Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EstadoBadge, puntoSemaforo } from "@/components/app/badges";
+import { EstadoBadge, ResponsableIniciales, TipoBadge, puntoSemaforo } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import { formatCierre, formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 function Dashboard() {
-  const { cargando, data } = useStore();
+  const { cargando, data, esAdmin } = useStore();
   const obligaciones = useObligacionesEnriquecidas();
   const [abierto, setAbierto] = useState(false);
 
@@ -93,11 +93,13 @@ function Dashboard() {
             })}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setAbierto(true)}>
-            <Plus className="size-4" /> Nueva obligación
-          </Button>
-        </div>
+        {esAdmin && (
+          <div className="flex gap-2">
+            <Button onClick={() => setAbierto(true)}>
+              <Plus className="size-4" /> Nueva obligación
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -225,11 +227,14 @@ function PanelVencimientos({
             className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-secondary/60"
           >
             <span className={`h-12 w-1.5 rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
+            <ResponsableIniciales nombre={o.empresa.responsable} />
             <div className="min-w-0 flex-1">
               <p className="truncate font-display text-base font-semibold">{o.empresa.nombre}</p>
-              <p className="truncate text-sm text-foreground/80">{o.tipo}</p>
-              <p className="truncate text-xs text-muted-foreground">
-                Cierre {formatCierre(o.ejercicio.cierre)} · {o.empresa.responsable}
+              <div className="mt-1">
+                <TipoBadge tipo={o.tipo} />
+              </div>
+              <p className="mt-1 truncate text-xs text-muted-foreground">
+                Cierre {formatCierre(o.ejercicio.cierre)}
               </p>
             </div>
             <div className="text-right">
