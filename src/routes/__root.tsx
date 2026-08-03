@@ -14,7 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
-import { CalendarDays, Building2, LayoutDashboard, ListChecks } from "lucide-react";
+import { CalendarDays, Building2, LayoutDashboard, ListChecks, ShieldCheck } from "lucide-react";
+import { useEsAdmin } from "@/lib/store";
 
 function NotFoundComponent() {
   return (
@@ -157,20 +158,7 @@ function RootComponent() {
                   Vencimientos PT
                 </span>
               </Link>
-              <nav className="flex flex-wrap items-center gap-1 text-sm">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    activeOptions={{ exact: item.to === "/" }}
-                    className="flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                    activeProps={{ className: "bg-secondary text-foreground" }}
-                  >
-                    <item.icon className="size-4" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              <Navegacion />
               <button
                 onClick={async () => {
                   await supabase.auth.signOut();
@@ -191,5 +179,28 @@ function RootComponent() {
         <Toaster position="top-right" richColors />
       </>
     </QueryClientProvider>
+  );
+}
+
+function Navegacion() {
+  const esAdmin = useEsAdmin();
+  const items = esAdmin
+    ? [...navItems, { to: "/administracion", label: "Administración", icon: ShieldCheck } as const]
+    : navItems;
+  return (
+    <nav className="flex flex-wrap items-center gap-1 text-sm">
+      {items.map((item) => (
+        <Link
+          key={item.to}
+          to={item.to}
+          activeOptions={{ exact: item.to === "/" }}
+          className="flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          activeProps={{ className: "bg-secondary text-foreground" }}
+        >
+          <item.icon className="size-4" />
+          {item.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
