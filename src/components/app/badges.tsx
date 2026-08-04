@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import {
-  SEMAFORO_LABEL,
   indiceTipo,
   iniciales,
   semaforoDe,
