@@ -51,7 +51,7 @@ export const SEMAFORO_LABEL: Record<Semaforo, string> = {
   presentado: "Presentado",
   vencido: "Vencido",
   critico: "Vence en 7 días",
-  proximo: "Vence este mes",
+  proximo: "Próximo",
 };
 
 export function hoy(): Date {
