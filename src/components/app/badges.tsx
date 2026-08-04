@@ -4,6 +4,7 @@ import {
   indiceTipo,
   iniciales,
   semaforoDe,
+  textoSemaforo,
   type Estado,
   type Obligacion,
   type Semaforo,
@@ -87,7 +88,7 @@ export function SemaforoBadge({ obligacion, className }: { obligacion: Obligacio
       )}
     >
       <span className={cn("size-1.5 rounded-full", puntoSemaforo(s))} />
-      {SEMAFORO_LABEL[s]}
+      {textoSemaforo(obligacion)}
     </span>
   );
 }
