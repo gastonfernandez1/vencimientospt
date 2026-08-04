@@ -30,11 +30,22 @@ import {
   formatCierre,
   formatFecha,
   textoDias,
+  semaforoDe,
+  hoy,
+  parseISO,
   type Estado,
   type Obligacion,
 } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/obligaciones")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    responsable: typeof search.responsable === "string" ? search.responsable : undefined,
+    urgencia: (["vencidas", "criticas", "mes", "presentadas"] as const).includes(
+      search.urgencia as never,
+    )
+      ? (search.urgencia as "vencidas" | "criticas" | "mes" | "presentadas")
+      : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Obligaciones y filtros | Vencimientos PT" },
@@ -54,6 +65,26 @@ export const Route = createFileRoute("/_authenticated/obligaciones")({
 });
 
 const TODOS = "todos";
+
+const URGENCIAS = {
+  vencidas: "Vencidas",
+  criticas: "Vencen en 7 días",
+  mes: "Del mes en curso",
+  presentadas: "Presentadas",
+} as const;
+
+type Urgencia = keyof typeof URGENCIAS;
+
+function cumpleUrgencia(o: VistaObligacion, u: Urgencia) {
+  if (u === "presentadas") return o.estado === "Presentado";
+  if (u === "mes") {
+    const n = hoy();
+    const v = parseISO(o.vencimiento);
+    return v.getFullYear() === n.getFullYear() && v.getMonth() === n.getMonth();
+  }
+  if (o.estado === "Presentado") return false;
+  return semaforoDe(o) === (u === "vencidas" ? "vencido" : "critico");
+}
 
 type Campo =
   | "empresa"
@@ -115,15 +146,17 @@ function Columna({
 
 function ObligacionesPage() {
   const { cargando, data, esAdmin, guardarObligacion, eliminarObligacion } = useStore();
+  const busquedaUrl = Route.useSearch();
   const obligaciones = useObligacionesEnriquecidas();
   const [busqueda, setBusqueda] = useState("");
   const [empresa, setEmpresa] = useState(TODOS);
-  const [responsable, setResponsable] = useState(TODOS);
+  const [responsable, setResponsable] = useState(busquedaUrl.responsable ?? TODOS);
   const [estado, setEstado] = useState(TODOS);
   const [tipo, setTipo] = useState(TODOS);
   const [cierre, setCierre] = useState(TODOS);
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
+  const [urgencia, setUrgencia] = useState<Urgencia | undefined>(busquedaUrl.urgencia);
   const [editando, setEditando] = useState<Obligacion | null>(null);
   const [abierto, setAbierto] = useState(false);
   const [orden, setOrden] = useState<{ campo: Campo; asc: boolean }>({
@@ -164,6 +197,7 @@ function ObligacionesPage() {
     if (cierre !== TODOS && o.ejercicio.cierre.slice(0, 7) !== cierre) return false;
     if (desde && o.vencimiento.slice(0, 7) < desde) return false;
     if (hasta && o.vencimiento.slice(0, 7) > hasta) return false;
+    if (urgencia && !cumpleUrgencia(o, urgencia)) return false;
     return true;
   });
 
@@ -188,6 +222,7 @@ function ObligacionesPage() {
     setCierre(TODOS);
     setDesde("");
     setHasta("");
+    setUrgencia(undefined);
   }
 
   if (cargando) {
@@ -202,6 +237,15 @@ function ObligacionesPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             {ordenadas.length} de {obligaciones.length} obligaciones
           </p>
+          {urgencia && (
+            <button
+              type="button"
+              onClick={() => setUrgencia(undefined)}
+              className="mt-2 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium"
+            >
+              {URGENCIAS[urgencia]} · quitar filtro ✕
+            </button>
+          )}
         </div>
         {esAdmin && (
           <Button
