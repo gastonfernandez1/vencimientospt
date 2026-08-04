@@ -84,6 +84,60 @@ function EmpresaDetalle() {
     .filter((x) => x.empresaId === empresa.id)
     .sort((a, b) => b.cierre.localeCompare(a.cierre));
 
+  const idsEjercicios = new Set(ejercicios.map((e) => e.id));
+  const firmasDigitales = data.obligaciones
+    .filter((o) => idsEjercicios.has(o.ejercicioId) && o.tipo === "Firma Digital")
+    .sort((a, b) => a.vencimiento.localeCompare(b.vencimiento));
+
+  const filaObligacion = (o: Obligacion) => (
+    <div
+      key={o.id}
+      className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
+    >
+      <SemaforoBadge obligacion={o} />
+      <span className="min-w-[200px] flex-1">
+        <TipoBadge tipo={o.tipo} />
+      </span>
+      <div className="text-sm">
+        <p className="text-xs text-muted-foreground">Vencimiento</p>
+        <p className="font-medium">{formatFecha(o.vencimiento)}</p>
+      </div>
+      {o.presentacion && (
+        <div className="text-sm">
+          <p className="text-xs text-muted-foreground">Presentación</p>
+          <p className="font-medium">{formatFecha(o.presentacion)}</p>
+        </div>
+      )}
+      <div className="ml-auto flex">
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label="Editar obligación"
+          onClick={() => {
+            setObligacionEditada(o);
+            setEjercicioActivo(o.ejercicioId);
+            setObligacionAbierta(true);
+          }}
+        >
+          <Pencil className="size-4" />
+        </Button>
+        {esAdmin && (
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label="Eliminar obligación"
+            onClick={() => {
+              eliminarObligacion(o.id);
+              toast.success("Los cambios fueron guardados correctamente.");
+            }}
+          >
+            <Trash2 className="size-4 text-vencido" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm">
@@ -125,6 +179,15 @@ function EmpresaDetalle() {
         )}
       </div>
 
+      {firmasDigitales.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Firma Digital</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">{firmasDigitales.map(filaObligacion)}</CardContent>
+        </Card>
+      )}
+
       {ejercicios.length === 0 && (
         <div className="rounded-xl border border-dashed border-border bg-card py-12 text-center text-muted-foreground">
           Esta empresa todavía no tiene ejercicios fiscales cargados.
@@ -133,7 +196,7 @@ function EmpresaDetalle() {
 
       {ejercicios.map((ej) => {
         const obligaciones = data.obligaciones
-          .filter((o) => o.ejercicioId === ej.id)
+          .filter((o) => o.ejercicioId === ej.id && o.tipo !== "Firma Digital")
           .sort((a, b) => a.vencimiento.localeCompare(b.vencimiento));
         return (
           <Card key={ej.id}>
@@ -172,54 +235,7 @@ function EmpresaDetalle() {
                   No existen obligaciones para este ejercicio.
                 </p>
               )}
-              {obligaciones.map((o) => (
-                <div
-                  key={o.id}
-                  className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
-                >
-                  <SemaforoBadge obligacion={o} />
-                  <span className="min-w-[200px] flex-1">
-                    <TipoBadge tipo={o.tipo} />
-                  </span>
-                  <div className="text-sm">
-                    <p className="text-xs text-muted-foreground">Vencimiento</p>
-                    <p className="font-medium">{formatFecha(o.vencimiento)}</p>
-                  </div>
-                  {o.presentacion && (
-                    <div className="text-sm">
-                      <p className="text-xs text-muted-foreground">Presentación</p>
-                      <p className="font-medium">{formatFecha(o.presentacion)}</p>
-                    </div>
-                  )}
-                  <div className="ml-auto flex">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label="Editar obligación"
-                      onClick={() => {
-                        setObligacionEditada(o);
-                        setEjercicioActivo(ej.id);
-                        setObligacionAbierta(true);
-                      }}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    {esAdmin && (
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="Eliminar obligación"
-                        onClick={() => {
-                          eliminarObligacion(o.id);
-                          toast.success("Los cambios fueron guardados correctamente.");
-                        }}
-                      >
-                        <Trash2 className="size-4 text-vencido" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+              {obligaciones.map(filaObligacion)}
             </CardContent>
           </Card>
         );

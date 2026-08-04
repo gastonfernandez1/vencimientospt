@@ -51,7 +51,7 @@ export const SEMAFORO_LABEL: Record<Semaforo, string> = {
   presentado: "Presentado",
   vencido: "Vencido",
   critico: "Vence en 7 días",
-  proximo: "Vence este mes",
+  proximo: "Próximo",
 };
 
 export function hoy(): Date {
@@ -121,4 +121,17 @@ export function textoDias(o: Obligacion): string {
   if (d < 0) return `Vencido hace ${Math.abs(d)} día${Math.abs(d) === 1 ? "" : "s"}`;
   if (d === 0) return "Vence hoy";
   return `En ${d} día${d === 1 ? "" : "s"}`;
+}
+
+/** Texto del semáforo acorde a la fecha real de vencimiento. */
+export function textoSemaforo(o: Obligacion): string {
+  if (o.estado === "Presentado") return "Presentado";
+  const d = diasRestantes(o.vencimiento);
+  if (d < 0) return "Vencido";
+  if (d === 0) return "Vence hoy";
+  if (d <= 7) return `Vence en ${d} día${d === 1 ? "" : "s"}`;
+  const v = parseISO(o.vencimiento);
+  const n = hoy();
+  if (v.getFullYear() === n.getFullYear() && v.getMonth() === n.getMonth()) return "Vence este mes";
+  return `Vence ${formatCierre(o.vencimiento)}`;
 }
