@@ -162,8 +162,8 @@ function ObligacionesPage() {
     if (estado !== TODOS && o.estado !== estado) return false;
     if (tipo !== TODOS && o.tipo !== tipo) return false;
     if (cierre !== TODOS && o.ejercicio.cierre.slice(0, 7) !== cierre) return false;
-    if (desde && o.vencimiento < desde) return false;
-    if (hasta && o.vencimiento > hasta) return false;
+    if (desde && o.vencimiento.slice(0, 7) < desde) return false;
+    if (hasta && o.vencimiento.slice(0, 7) > hasta) return false;
     return true;
   });
 
@@ -267,11 +267,21 @@ function ObligacionesPage() {
           </Filtro>
           <div className="grid gap-2">
             <Label htmlFor="desde">Vence desde</Label>
-            <Input id="desde" type="date" value={desde} onChange={(e) => setDesde(e.target.value)} />
+            <Input
+              id="desde"
+              type="month"
+              value={desde}
+              onChange={(e) => setDesde(e.target.value)}
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="hasta">Vence hasta</Label>
-            <Input id="hasta" type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} />
+            <Input
+              id="hasta"
+              type="month"
+              value={hasta}
+              onChange={(e) => setHasta(e.target.value)}
+            />
           </div>
           <div className="flex items-end">
             <Button variant="ghost" onClick={limpiar}>
