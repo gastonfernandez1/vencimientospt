@@ -109,6 +109,7 @@ function Dashboard() {
           detalle="Requieren acción inmediata"
           tono="vencido"
           icono={AlertTriangle}
+          urgencia="vencidas"
         />
         <Indicador
           titulo="Vencen en 7 días"
@@ -116,6 +117,7 @@ function Dashboard() {
           detalle="Prioridad alta de la semana"
           tono="critico"
           icono={CalendarClock}
+          urgencia="criticas"
         />
         <Indicador
           titulo="Del mes en curso"
@@ -123,6 +125,7 @@ function Dashboard() {
           detalle="Carga de trabajo del período"
           tono="proximo"
           icono={CalendarClock}
+          urgencia="mes"
         />
         <Indicador
           titulo="Presentadas"
@@ -130,6 +133,7 @@ function Dashboard() {
           detalle={`Sobre ${obligaciones.length} obligaciones`}
           tono="presentado"
           icono={CheckCircle2}
+          urgencia="presentadas"
         />
       </div>
 
@@ -149,7 +153,12 @@ function Dashboard() {
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {resumen.porResponsable.map(([nombre, info]) => (
-            <div key={nombre} className="rounded-lg border border-border bg-secondary/40 p-4">
+            <Link
+              key={nombre}
+              to="/obligaciones"
+              search={{ responsable: nombre }}
+              className="rounded-lg border border-border bg-secondary/40 p-4 transition-colors hover:bg-secondary"
+            >
               <p className="font-medium">{nombre}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {info.total} pendiente{info.total === 1 ? "" : "s"}
@@ -157,7 +166,8 @@ function Dashboard() {
                   <span className="text-vencido"> · {info.vencidas} vencida{info.vencidas === 1 ? "" : "s"}</span>
                 )}
               </p>
-            </div>
+              <p className="mt-2 text-xs font-medium text-muted-foreground">Ver asignaciones →</p>
+            </Link>
           ))}
           {resumen.porResponsable.length === 0 && (
             <p className="text-sm text-muted-foreground">No hay obligaciones pendientes asignadas.</p>
@@ -255,12 +265,14 @@ function Indicador({
   detalle,
   tono,
   icono: Icono,
+  urgencia,
 }: {
   titulo: string;
   valor: number;
   detalle: string;
   tono: "vencido" | "critico" | "proximo" | "presentado";
   icono: React.ComponentType<{ className?: string }>;
+  urgencia: "vencidas" | "criticas" | "mes" | "presentadas";
 }) {
   const clases = {
     vencido: "text-vencido bg-vencido-soft",
@@ -269,17 +281,19 @@ function Indicador({
     presentado: "text-presentado bg-presentado-soft",
   }[tono];
   return (
-    <Card>
-      <CardContent className="flex items-start justify-between gap-3 pt-6">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{titulo}</p>
-          <p className="mt-1 font-display text-3xl font-semibold">{valor}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{detalle}</p>
-        </div>
-        <span className={`flex size-9 items-center justify-center rounded-lg ${clases}`}>
-          <Icono className="size-4" />
-        </span>
-      </CardContent>
-    </Card>
+    <Link to="/obligaciones" search={{ urgencia }} className="block">
+      <Card className="transition-colors hover:bg-secondary/50">
+        <CardContent className="flex items-start justify-between gap-3 pt-6">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">{titulo}</p>
+            <p className="mt-1 font-display text-3xl font-semibold">{valor}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{detalle}</p>
+          </div>
+          <span className={`flex size-9 items-center justify-center rounded-lg ${clases}`}>
+            <Icono className="size-4" />
+          </span>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
