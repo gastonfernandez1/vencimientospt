@@ -192,6 +192,26 @@ function PanelVencimientos({
   );
   const items = vista === "vencidos" ? vencidas : proximas;
 
+  const grupos = useMemo(() => {
+    const mapa = new Map<string, VistaObligacion[]>();
+    items.forEach((o) => {
+      const clave = o.vencimiento.slice(0, 7);
+      const lista = mapa.get(clave) ?? [];
+      lista.push(o);
+      mapa.set(clave, lista);
+    });
+    return [...mapa.entries()]
+      .sort((a, b) => (vista === "vencidos" ? b[0].localeCompare(a[0]) : a[0].localeCompare(b[0])))
+      .map(([clave, filas]) => {
+        const [y, m] = clave.split("-").map(Number);
+        const titulo = new Date(y!, (m ?? 1) - 1, 1).toLocaleDateString("es-AR", {
+          month: "long",
+          year: "numeric",
+        });
+        return [titulo, filas] as const;
+      });
+  }, [items, vista]);
+
   return (
     <Card>
       <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">
