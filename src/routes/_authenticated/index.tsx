@@ -221,38 +221,55 @@ function PanelVencimientos({
           ))}
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="p-0">
         {items.length === 0 && (
-          <p className="text-sm text-muted-foreground">
+          <p className="px-6 pb-6 text-base text-muted-foreground">
             {vista === "vencidos"
               ? "No hay obligaciones vencidas. Buen trabajo."
               : "No hay vencimientos próximos."}
           </p>
         )}
-        {items.map((o) => (
-          <Link
-            key={o.id}
-            to="/empresas/$empresaId"
-            params={{ empresaId: o.empresa.id }}
-            className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-secondary/60"
-          >
-            <span className={`h-12 w-1.5 rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
-            <ResponsableIniciales nombre={o.empresa.responsable} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-base font-semibold">{o.empresa.nombre}</p>
-              <div className="mt-1">
-                <TipoBadge tipo={o.tipo} />
-              </div>
-              <p className="mt-1 truncate text-xs text-muted-foreground">
-                Cierre {formatCierre(o.ejercicio.cierre)}
-              </p>
+        {grupos.map(([titulo, filas]) => (
+          <section key={titulo}>
+            <div className="flex items-baseline justify-between border-y border-border bg-secondary/60 px-6 py-1.5">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {titulo}
+              </h3>
+              <span className="text-sm text-muted-foreground">{filas.length}</span>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium">{formatFecha(o.vencimiento)}</p>
-              <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
-            </div>
-            <EstadoBadge estado={o.estado} />
-          </Link>
+            <ul className="divide-y divide-border">
+              {filas.map((o) => (
+                <li key={o.id}>
+                  <Link
+                    to="/empresas/$empresaId"
+                    params={{ empresaId: o.empresa.id }}
+                    className="grid grid-cols-[3px_auto_minmax(0,1fr)_auto] items-center gap-x-3 px-6 py-2 transition-colors hover:bg-secondary/50 sm:grid-cols-[3px_auto_minmax(0,1.1fr)_minmax(0,1fr)_auto_auto] sm:gap-x-4"
+                  >
+                    <span className={`h-8 w-[3px] rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
+                    <ResponsableIniciales nombre={o.empresa.responsable} />
+                    <span className="truncate text-[15px] font-semibold leading-tight">
+                      {o.empresa.nombre}
+                      <span className="ml-2 text-[13px] font-normal text-muted-foreground">
+                        {formatCierre(o.ejercicio.cierre)}
+                      </span>
+                    </span>
+                    <span className="hidden min-w-0 sm:block">
+                      <TipoBadge tipo={o.tipo} className="text-[13px]" />
+                    </span>
+                    <span className="text-right text-[15px] font-medium tabular-nums">
+                      {formatFecha(o.vencimiento)}
+                      <span className="ml-2 hidden text-[13px] font-normal text-muted-foreground lg:inline">
+                        {textoDias(o)}
+                      </span>
+                    </span>
+                    <span className="hidden sm:block">
+                      <EstadoBadge estado={o.estado} />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         ))}
       </CardContent>
     </Card>
