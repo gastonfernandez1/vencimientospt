@@ -336,7 +336,7 @@ function ObligacionesPage() {
       </Card>
 
       <Card>
-        <CardContent className="overflow-x-auto pt-6">
+        <CardContent className="overflow-x-auto pt-4 text-sm [&_td]:py-2 [&_th]:h-9">
           <Table>
             <TableHeader>
               <TableRow>
@@ -368,22 +368,22 @@ function ObligacionesPage() {
             <TableBody>
               {ordenadas.map((o) => (
                 <TableRow key={o.id}>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     <SemaforoBadge obligacion={o} />
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium">{o.empresa.nombre}</p>
+                    <p className="font-medium leading-tight">{o.empresa.nombre}</p>
                     <p className="text-xs text-muted-foreground">{o.empresa.cuit}</p>
                   </TableCell>
-                  <TableCell className="max-w-[260px]">
+                  <TableCell className="max-w-[240px]">
                     <TipoBadge tipo={o.tipo} />
                   </TableCell>
-                  <TableCell className="text-sm">{formatCierre(o.ejercicio.cierre)}</TableCell>
-                  <TableCell>
-                    <p className="font-medium">{formatFecha(o.vencimiento)}</p>
+                  <TableCell className="whitespace-nowrap">{formatCierre(o.ejercicio.cierre)}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <p className="font-medium leading-tight">{formatFecha(o.vencimiento)}</p>
                     <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
                   </TableCell>
-                  <TableCell className="text-sm">{formatFecha(o.presentacion)}</TableCell>
+                  <TableCell className="whitespace-nowrap">{formatFecha(o.presentacion)}</TableCell>
                   <TableCell>
                     <ResponsableIniciales nombre={o.empresa.responsable} />
                   </TableCell>
@@ -395,7 +395,7 @@ function ObligacionesPage() {
                         toast.success("Los cambios fueron guardados correctamente.");
                       }}
                     >
-                      <SelectTrigger className="h-8 w-[150px]">
+                      <SelectTrigger className="h-7 w-[138px] text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -410,6 +410,7 @@ function ObligacionesPage() {
                   <TableCell className="text-right whitespace-nowrap">
                     <Button
                       size="icon"
+                      className="size-7"
                       variant="ghost"
                       aria-label="Editar obligación"
                       onClick={() => {
@@ -422,6 +423,7 @@ function ObligacionesPage() {
                     {esAdmin && (
                       <Button
                         size="icon"
+                        className="size-7"
                         variant="ghost"
                         aria-label="Eliminar obligación"
                         onClick={() => {
