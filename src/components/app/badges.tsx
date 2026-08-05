@@ -9,17 +9,17 @@ import {
   type Semaforo,
 } from "@/lib/domain";
 
-const tipoClases: Record<number, string> = {
-  1: "bg-tipo-1-soft text-tipo-1 border-tipo-1/25",
-  2: "bg-tipo-2-soft text-tipo-2 border-tipo-2/25",
-  3: "bg-tipo-3-soft text-tipo-3 border-tipo-3/25",
-  4: "bg-tipo-4-soft text-tipo-4 border-tipo-4/25",
-  5: "bg-tipo-5-soft text-tipo-5 border-tipo-5/25",
-  6: "bg-tipo-6-soft text-tipo-6 border-tipo-6/25",
-  7: "bg-tipo-7-soft text-tipo-7 border-tipo-7/25",
+const tipoTexto: Record<number, string> = {
+  1: "text-tipo-1",
+  2: "text-tipo-2",
+  3: "text-tipo-3",
+  4: "text-tipo-4",
+  5: "text-tipo-5",
+  6: "text-tipo-6",
+  7: "text-tipo-7",
 };
 
-const tipoPunto: Record<number, string> = {
+const tipoBarra: Record<number, string> = {
   1: "bg-tipo-1",
   2: "bg-tipo-2",
   3: "bg-tipo-3",
@@ -29,20 +29,16 @@ const tipoPunto: Record<number, string> = {
   7: "bg-tipo-7",
 };
 
-/** Chip destacado con el tipo de presentación. */
+/** Tipo de presentación: barra de color + texto, sin recuadro (se diferencia de Urgencia). */
 export function TipoBadge({ tipo, className }: { tipo: string; className?: string }) {
   const i = indiceTipo(tipo);
   return (
     <span
-      className={cn(
-        "inline-flex max-w-full items-center gap-2 rounded-md border px-2.5 py-1 text-xs font-semibold leading-tight",
-        tipoClases[i],
-        className,
-      )}
+      className={cn("inline-flex max-w-full items-center gap-2 text-xs font-medium", className)}
       title={tipo}
     >
-      <span className={cn("size-2 shrink-0 rounded-sm", tipoPunto[i])} />
-      <span className="truncate">{tipo}</span>
+      <span className={cn("h-4 w-[3px] shrink-0 rounded-full", tipoBarra[i])} />
+      <span className={cn("truncate", tipoTexto[i])}>{tipo}</span>
     </span>
   );
 }
@@ -53,7 +49,7 @@ export function ResponsableIniciales({ nombre }: { nombre?: string }) {
     <span
       title={nombre || "Sin responsable"}
       aria-label={nombre || "Sin responsable"}
-      className="inline-flex size-8 items-center justify-center rounded-full border border-border bg-secondary text-xs font-semibold text-secondary-foreground"
+      className="inline-flex size-7 items-center justify-center rounded-full border border-border bg-secondary text-[11px] font-semibold text-secondary-foreground"
     >
       {iniciales(nombre)}
     </span>
