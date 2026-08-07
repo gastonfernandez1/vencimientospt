@@ -33,7 +33,7 @@ function Dashboard() {
   const [abierto, setAbierto] = useState(false);
 
   const resumen = useMemo(() => {
-    const pendientes = obligaciones.filter((o) => o.estado !== "Presentado");
+    const pendientes = obligaciones.filter((o) => !estaCerrada(o.estado));
     const vencidas = pendientes.filter((o) => semaforoDe(o) === "vencido");
     const criticas = pendientes.filter((o) => semaforoDe(o) === "critico");
     const n = hoy();
