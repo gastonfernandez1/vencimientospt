@@ -61,6 +61,7 @@ const semaforoClases: Record<Semaforo, string> = {
   critico: "bg-critico-soft text-critico border-critico/30",
   proximo: "bg-proximo-soft text-proximo border-proximo/30",
   presentado: "bg-presentado-soft text-presentado border-presentado/30",
+  neutro: "bg-muted text-muted-foreground border-border",
 };
 
 export function puntoSemaforo(s: Semaforo) {
@@ -69,6 +70,7 @@ export function puntoSemaforo(s: Semaforo) {
     critico: "bg-critico",
     proximo: "bg-proximo",
     presentado: "bg-presentado",
+    neutro: "bg-muted-foreground",
   }[s];
 }
 
@@ -93,6 +95,9 @@ const estadoClases: Record<Estado, string> = {
   "En preparación": "bg-proximo-soft text-proximo border-proximo/30",
   "En revisión": "bg-proximo-soft text-proximo border-proximo/30",
   Presentado: "bg-presentado-soft text-presentado border-presentado/30",
+  "Presentación fuera de término": "bg-vencido-soft text-vencido border-vencido/30",
+  CIA: "bg-secondary text-secondary-foreground border-border",
+  "N/A": "bg-muted text-muted-foreground border-border",
 };
 
 export function EstadoBadge({ estado }: { estado: Estado }) {
