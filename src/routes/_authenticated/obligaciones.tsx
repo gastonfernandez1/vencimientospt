@@ -121,24 +121,26 @@ function Columna({
   campo,
   orden,
   onSort,
+  className,
   children,
 }: {
   campo: Campo;
   orden: Orden;
   onSort: (campo: Campo) => void;
+  className?: string;
   children: React.ReactNode;
 }) {
   const activa = orden.campo === campo;
   const Icono = !activa ? ChevronsUpDown : orden.asc ? ArrowUp : ArrowDown;
   return (
-    <TableHead>
+    <TableHead className={className}>
       <button
         type="button"
         onClick={() => onSort(campo)}
-        className="inline-flex items-center gap-1 font-medium hover:text-foreground"
+        className="inline-flex max-w-full items-center gap-1 text-left font-medium hover:text-foreground"
         aria-label={`Ordenar por ${campo}`}
       >
-        {children}
+        <span className="truncate">{children}</span>
         <Icono className={activa ? "size-3.5" : "size-3.5 opacity-40"} />
       </button>
     </TableHead>
@@ -337,51 +339,53 @@ function ObligacionesPage() {
       </Card>
 
       <Card>
-        <CardContent className="overflow-x-auto pt-4 text-sm [&_td]:py-2 [&_th]:h-9">
-          <Table>
+        <CardContent className="pt-4 text-[13px] [&_td]:px-2 [&_td]:py-2 [&_th]:h-9 [&_th]:px-2">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>Urgencia</TableHead>
-                <Columna campo="responsable" orden={orden} onSort={ordenarPor}>
+                <TableHead className="w-[122px]">Urgencia</TableHead>
+                <Columna campo="responsable" orden={orden} onSort={ordenarPor} className="w-[64px]">
                   Responsable
                 </Columna>
                 <Columna campo="empresa" orden={orden} onSort={ordenarPor}>
                   Empresa
                 </Columna>
-                <Columna campo="cierre" orden={orden} onSort={ordenarPor}>
+                <Columna campo="cierre" orden={orden} onSort={ordenarPor} className="w-[96px]">
                   Período fiscal
                 </Columna>
-                <Columna campo="tipo" orden={orden} onSort={ordenarPor}>
+                <Columna campo="tipo" orden={orden} onSort={ordenarPor} className="w-[168px]">
                   Tipo de presentación
                 </Columna>
-                <Columna campo="vencimiento" orden={orden} onSort={ordenarPor}>
+                <Columna campo="vencimiento" orden={orden} onSort={ordenarPor} className="w-[112px]">
                   Vencimiento
                 </Columna>
-                <Columna campo="estado" orden={orden} onSort={ordenarPor}>
+                <Columna campo="estado" orden={orden} onSort={ordenarPor} className="w-[136px]">
                   Estado
                 </Columna>
-                <Columna campo="presentacion" orden={orden} onSort={ordenarPor}>
+                <Columna campo="presentacion" orden={orden} onSort={ordenarPor} className="w-[92px]">
                   Fecha de Presentación
                 </Columna>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="w-[76px] text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {ordenadas.map((o) => (
                 <TableRow key={o.id}>
-                  <TableCell className="whitespace-nowrap">
-                    <SemaforoBadge obligacion={o} />
+                  <TableCell>
+                    <SemaforoBadge obligacion={o} className="max-w-full" />
                   </TableCell>
                   <TableCell>
                     <ResponsableIniciales nombre={o.empresa.responsable} />
                   </TableCell>
                   <TableCell>
-                    <p className="whitespace-nowrap font-medium leading-tight">{o.empresa.nombre}</p>
-                    <p className="text-xs text-muted-foreground">{o.empresa.cuit}</p>
+                    <p className="truncate font-medium leading-tight" title={o.empresa.nombre}>
+                      {o.empresa.nombre}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">{o.empresa.cuit}</p>
                   </TableCell>
                   <TableCell className="whitespace-nowrap">{formatCierre(o.ejercicio.cierre)}</TableCell>
-                  <TableCell className="max-w-[280px]">
-                    <TipoBadge tipo={o.tipo} className="text-sm" />
+                  <TableCell>
+                    <TipoBadge tipo={o.tipo} className="text-[13px]" />
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     <p className="font-medium leading-tight">{formatFecha(o.vencimiento)}</p>
@@ -402,7 +406,7 @@ function ObligacionesPage() {
                         toast.success("Los cambios fueron guardados correctamente.");
                       }}
                     >
-                      <SelectTrigger className="h-7 w-[180px] text-xs">
+                      <SelectTrigger className="h-7 w-full px-2 text-xs [&>span]:truncate">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
