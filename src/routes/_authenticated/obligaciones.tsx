@@ -26,6 +26,7 @@ import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import {
   ESTADOS,
+  ESTADOS_CON_PRESENTACION,
   TIPOS_PRESENTACION,
   formatCierre,
   formatFecha,
@@ -341,26 +342,26 @@ function ObligacionesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Urgencia</TableHead>
+                <Columna campo="responsable" orden={orden} onSort={ordenarPor}>
+                  Responsable
+                </Columna>
                 <Columna campo="empresa" orden={orden} onSort={ordenarPor}>
                   Empresa
+                </Columna>
+                <Columna campo="cierre" orden={orden} onSort={ordenarPor}>
+                  Período fiscal
                 </Columna>
                 <Columna campo="tipo" orden={orden} onSort={ordenarPor}>
                   Tipo de presentación
                 </Columna>
-                <Columna campo="cierre" orden={orden} onSort={ordenarPor}>
-                  Cierre
-                </Columna>
                 <Columna campo="vencimiento" orden={orden} onSort={ordenarPor}>
                   Vencimiento
                 </Columna>
-                <Columna campo="presentacion" orden={orden} onSort={ordenarPor}>
-                  Presentación
-                </Columna>
-                <Columna campo="responsable" orden={orden} onSort={ordenarPor}>
-                  Responsable
-                </Columna>
                 <Columna campo="estado" orden={orden} onSort={ordenarPor}>
                   Estado
+                </Columna>
+                <Columna campo="presentacion" orden={orden} onSort={ordenarPor}>
+                  Fecha de Presentación
                 </Columna>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -372,30 +373,36 @@ function ObligacionesPage() {
                     <SemaforoBadge obligacion={o} />
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium leading-tight">{o.empresa.nombre}</p>
+                    <ResponsableIniciales nombre={o.empresa.responsable} />
+                  </TableCell>
+                  <TableCell>
+                    <p className="whitespace-nowrap font-medium leading-tight">{o.empresa.nombre}</p>
                     <p className="text-xs text-muted-foreground">{o.empresa.cuit}</p>
                   </TableCell>
-                  <TableCell className="max-w-[240px]">
-                    <TipoBadge tipo={o.tipo} />
-                  </TableCell>
                   <TableCell className="whitespace-nowrap">{formatCierre(o.ejercicio.cierre)}</TableCell>
+                  <TableCell className="max-w-[280px]">
+                    <TipoBadge tipo={o.tipo} className="text-sm" />
+                  </TableCell>
                   <TableCell className="whitespace-nowrap">
                     <p className="font-medium leading-tight">{formatFecha(o.vencimiento)}</p>
                     <p className="text-xs text-muted-foreground">{textoDias(o)}</p>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">{formatFecha(o.presentacion)}</TableCell>
-                  <TableCell>
-                    <ResponsableIniciales nombre={o.empresa.responsable} />
                   </TableCell>
                   <TableCell>
                     <Select
                       value={o.estado}
                       onValueChange={(v) => {
-                        guardarObligacion({ ...o, estado: v as Estado });
+                        const estado = v as Estado;
+                        guardarObligacion({
+                          ...o,
+                          estado,
+                          presentacion: ESTADOS_CON_PRESENTACION.includes(estado)
+                            ? o.presentacion
+                            : undefined,
+                        });
                         toast.success("Los cambios fueron guardados correctamente.");
                       }}
                     >
-                      <SelectTrigger className="h-7 w-[138px] text-xs">
+                      <SelectTrigger className="h-7 w-[180px] text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -406,6 +413,11 @@ function ObligacionesPage() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {ESTADOS_CON_PRESENTACION.includes(o.estado)
+                      ? formatFecha(o.presentacion)
+                      : "—"}
                   </TableCell>
                   <TableCell className="text-right whitespace-nowrap">
                     <Button
