@@ -353,7 +353,7 @@ function ObligacionesPage() {
                 <Columna campo="cierre" orden={orden} onSort={ordenarPor} className="w-[96px]">
                   Período fiscal
                 </Columna>
-                <Columna campo="tipo" orden={orden} onSort={ordenarPor} className="w-[200px]">
+                <Columna campo="tipo" orden={orden} onSort={ordenarPor} className="w-[168px]">
                   Tipo de presentación
                 </Columna>
                 <Columna campo="vencimiento" orden={orden} onSort={ordenarPor} className="w-[112px]">
@@ -362,7 +362,7 @@ function ObligacionesPage() {
                 <Columna campo="estado" orden={orden} onSort={ordenarPor} className="w-[136px]">
                   Estado
                 </Columna>
-                <Columna campo="presentacion" orden={orden} onSort={ordenarPor} className="w-[104px]">
+                <Columna campo="presentacion" orden={orden} onSort={ordenarPor} className="w-[92px]">
                   Fecha de Presentación
                 </Columna>
                 <TableHead className="w-[76px] text-right">Acciones</TableHead>
