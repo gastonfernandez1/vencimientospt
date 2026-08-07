@@ -22,6 +22,7 @@ import {
 import { useStore } from "@/lib/store";
 import {
   ESTADOS,
+  ESTADOS_CON_PRESENTACION,
   TIPOS_PRESENTACION,
   formatCierre,
   type Estado,
@@ -67,6 +68,7 @@ export function ObligacionDialog({
   }, [open, obligacion, ejercicioIdInicial, data.ejercicios]);
 
   const empresasPorId = new Map(data.empresas.map((e) => [e.id, e]));
+  const permitePresentacion = ESTADOS_CON_PRESENTACION.includes(form.estado);
 
   function guardar() {
     if (!form.ejercicioId || !form.vencimiento) {
@@ -147,13 +149,19 @@ export function ObligacionDialog({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="pres">Fecha de presentación (opcional)</Label>
+              <Label htmlFor="pres">Fecha de presentación</Label>
               <Input
                 id="pres"
                 type="date"
+                disabled={!permitePresentacion}
                 value={form.presentacion}
                 onChange={(e) => setForm((f) => ({ ...f, presentacion: e.target.value }))}
               />
+              {!permitePresentacion && (
+                <p className="text-xs text-muted-foreground">
+                  Se habilita al marcar la obligación como presentada.
+                </p>
+              )}
             </div>
           </div>
 
@@ -162,7 +170,15 @@ export function ObligacionDialog({
               <Label>Estado</Label>
               <Select
                 value={form.estado}
-                onValueChange={(v) => setForm((f) => ({ ...f, estado: v as Estado }))}
+                onValueChange={(v) =>
+                  setForm((f) => ({
+                    ...f,
+                    estado: v as Estado,
+                    presentacion: ESTADOS_CON_PRESENTACION.includes(v as Estado)
+                      ? f.presentacion
+                      : "",
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />

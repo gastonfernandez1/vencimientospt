@@ -9,8 +9,34 @@ export const TIPOS_PRESENTACION = [
 ] as const;
 export type TipoPresentacion = (typeof TIPOS_PRESENTACION)[number];
 
-export const ESTADOS = ["Pendiente", "En preparación", "En revisión", "Presentado"] as const;
+export const ESTADOS = [
+  "Pendiente",
+  "En preparación",
+  "En revisión",
+  "Presentado",
+  "Presentación fuera de término",
+  "CIA",
+  "N/A",
+] as const;
 export type Estado = (typeof ESTADOS)[number];
+
+/** Estados que implican que la obligación ya está resuelta (no urgente). */
+export const ESTADOS_CERRADOS: readonly Estado[] = [
+  "Presentado",
+  "Presentación fuera de término",
+  "CIA",
+  "N/A",
+];
+
+/** Estados en los que corresponde cargar la fecha de presentación. */
+export const ESTADOS_CON_PRESENTACION: readonly Estado[] = [
+  "Presentado",
+  "Presentación fuera de término",
+];
+
+export function estaCerrada(estado: Estado): boolean {
+  return ESTADOS_CERRADOS.includes(estado);
+}
 
 /** Iniciales de un responsable, ej. "Sofía Martínez" -> "SM". */
 export function iniciales(nombre?: string): string {
@@ -45,13 +71,14 @@ export type Obligacion = {
   observaciones?: string;
 };
 
-export type Semaforo = "presentado" | "vencido" | "critico" | "proximo";
+export type Semaforo = "presentado" | "vencido" | "critico" | "proximo" | "neutro";
 
 export const SEMAFORO_LABEL: Record<Semaforo, string> = {
   presentado: "Presentado",
   vencido: "Vencido",
   critico: "Vence en 7 días",
   proximo: "Próximo",
+  neutro: "Sin vencimiento",
 };
 
 export function hoy(): Date {
@@ -106,6 +133,8 @@ export function diasRestantes(vencimiento: string): number {
 
 export function semaforoDe(o: Obligacion): Semaforo {
   if (o.estado === "Presentado") return "presentado";
+  if (o.estado === "Presentación fuera de término") return "vencido";
+  if (o.estado === "CIA" || o.estado === "N/A") return "neutro";
   const dias = diasRestantes(o.vencimiento);
   if (dias < 0) return "vencido";
   if (dias <= 7) return "critico";
@@ -116,7 +145,7 @@ export function semaforoDe(o: Obligacion): Semaforo {
 }
 
 export function textoDias(o: Obligacion): string {
-  if (o.estado === "Presentado") return "Presentado";
+  if (estaCerrada(o.estado)) return o.estado;
   const d = diasRestantes(o.vencimiento);
   if (d < 0) return `Vencido hace ${Math.abs(d)} día${Math.abs(d) === 1 ? "" : "s"}`;
   if (d === 0) return "Vence hoy";
@@ -126,6 +155,9 @@ export function textoDias(o: Obligacion): string {
 /** Texto del semáforo acorde a la fecha real de vencimiento. */
 export function textoSemaforo(o: Obligacion): string {
   if (o.estado === "Presentado") return "Presentado";
+  if (o.estado === "Presentación fuera de término") return "Fuera de término";
+  if (o.estado === "CIA") return "CIA";
+  if (o.estado === "N/A") return "N/A";
   const d = diasRestantes(o.vencimiento);
   if (d < 0) return "Vencido";
   if (d === 0) return "Vence hoy";

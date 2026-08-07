@@ -6,7 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EstadoBadge, ResponsableIniciales, TipoBadge, puntoSemaforo } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
-import { formatCierre, formatFecha, semaforoDe, textoDias, hoy, parseISO } from "@/lib/domain";
+import {
+  estaCerrada,
+  formatCierre,
+  formatFecha,
+  semaforoDe,
+  textoDias,
+  hoy,
+  parseISO,
+} from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -33,7 +41,7 @@ function Dashboard() {
   const [abierto, setAbierto] = useState(false);
 
   const resumen = useMemo(() => {
-    const pendientes = obligaciones.filter((o) => o.estado !== "Presentado");
+    const pendientes = obligaciones.filter((o) => !estaCerrada(o.estado));
     const vencidas = pendientes.filter((o) => semaforoDe(o) === "vencido");
     const criticas = pendientes.filter((o) => semaforoDe(o) === "critico");
     const n = hoy();
