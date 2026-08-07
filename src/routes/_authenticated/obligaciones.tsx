@@ -121,24 +121,26 @@ function Columna({
   campo,
   orden,
   onSort,
+  className,
   children,
 }: {
   campo: Campo;
   orden: Orden;
   onSort: (campo: Campo) => void;
+  className?: string;
   children: React.ReactNode;
 }) {
   const activa = orden.campo === campo;
   const Icono = !activa ? ChevronsUpDown : orden.asc ? ArrowUp : ArrowDown;
   return (
-    <TableHead>
+    <TableHead className={className}>
       <button
         type="button"
         onClick={() => onSort(campo)}
-        className="inline-flex items-center gap-1 font-medium hover:text-foreground"
+        className="inline-flex max-w-full items-center gap-1 text-left font-medium hover:text-foreground"
         aria-label={`Ordenar por ${campo}`}
       >
-        {children}
+        <span className="truncate">{children}</span>
         <Icono className={activa ? "size-3.5" : "size-3.5 opacity-40"} />
       </button>
     </TableHead>
