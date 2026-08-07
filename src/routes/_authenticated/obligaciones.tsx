@@ -337,11 +337,11 @@ function ObligacionesPage() {
       </Card>
 
       <Card>
-        <CardContent className="overflow-x-auto pt-4 text-sm [&_td]:py-2 [&_th]:h-9">
-          <Table>
+        <CardContent className="pt-4 text-[13px] [&_td]:px-2 [&_td]:py-2 [&_th]:h-9 [&_th]:px-2">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>Urgencia</TableHead>
+                <TableHead className="w-[122px]">Urgencia</TableHead>
                 <Columna campo="responsable" orden={orden} onSort={ordenarPor}>
                   Responsable
                 </Columna>
@@ -363,7 +363,7 @@ function ObligacionesPage() {
                 <Columna campo="presentacion" orden={orden} onSort={ordenarPor}>
                   Fecha de Presentación
                 </Columna>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="w-[76px] text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
