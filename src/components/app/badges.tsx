@@ -30,7 +30,15 @@ const tipoBarra: Record<number, string> = {
 };
 
 /** Tipo de presentación: barra de color + texto, sin recuadro (se diferencia de Urgencia). */
-export function TipoBadge({ tipo, className }: { tipo: string; className?: string }) {
+export function TipoBadge({
+  tipo,
+  className,
+  tono = "color",
+}: {
+  tipo: string;
+  className?: string;
+  tono?: "color" | "foreground";
+}) {
   const i = indiceTipo(tipo);
   return (
     <span
@@ -38,7 +46,9 @@ export function TipoBadge({ tipo, className }: { tipo: string; className?: strin
       title={tipo}
     >
       <span className={cn("h-4 w-[3px] shrink-0 rounded-full", tipoBarra[i])} />
-      <span className={cn("truncate", tipoTexto[i])}>{tipo}</span>
+      <span className={cn("truncate", tono === "color" ? tipoTexto[i] : "text-foreground")}>
+        {tipo}
+      </span>
     </span>
   );
 }
