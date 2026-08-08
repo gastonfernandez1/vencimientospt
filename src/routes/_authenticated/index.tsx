@@ -271,7 +271,7 @@ function PanelVencimientos({
                   <Link
                     to="/empresas/$empresaId"
                     params={{ empresaId: o.empresa.id }}
-                    className="grid grid-cols-[3px_auto_minmax(0,1fr)_auto] items-center gap-x-3 px-6 py-2 transition-colors hover:bg-secondary/50 sm:grid-cols-[3px_28px_minmax(0,1fr)_240px_180px_112px] sm:gap-x-4"
+                    className="grid grid-cols-[3px_auto_minmax(0,1fr)_auto] items-center gap-x-3 px-6 py-2 transition-colors hover:bg-secondary/50 sm:grid-cols-[3px_28px_minmax(0,300px)_230px_max-content_112px_minmax(0,1fr)] sm:gap-x-4"
                   >
                     <span className={`h-8 w-[3px] rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
                     <ResponsableIniciales nombre={o.empresa.responsable} />
@@ -282,11 +282,11 @@ function PanelVencimientos({
                       </span>
                     </span>
                     <span className="hidden min-w-0 sm:block">
-                      <TipoBadge tipo={o.tipo} tono="foreground" className="w-full text-[13px]" />
+                      <TipoBadge tipo={o.tipo} tono="foreground" className="w-full text-[14px]" />
                     </span>
-                    <span className="text-right text-[15px] font-medium tabular-nums">
+                    <span className="whitespace-nowrap text-right text-[15px] font-medium tabular-nums sm:text-left">
                       {formatFecha(o.vencimiento)}
-                      <span className="ml-2 hidden text-[13px] font-normal text-muted-foreground lg:inline">
+                      <span className="ml-2 hidden whitespace-nowrap text-[13px] font-normal text-muted-foreground lg:inline">
                         {textoDias(o)}
                       </span>
                     </span>
