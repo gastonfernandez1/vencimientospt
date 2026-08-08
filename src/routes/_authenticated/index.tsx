@@ -271,7 +271,7 @@ function PanelVencimientos({
                   <Link
                     to="/empresas/$empresaId"
                     params={{ empresaId: o.empresa.id }}
-                    className="grid grid-cols-[3px_auto_minmax(0,1fr)_auto] items-center gap-x-3 px-6 py-2 transition-colors hover:bg-secondary/50 sm:grid-cols-[3px_auto_minmax(0,1.1fr)_minmax(0,1fr)_auto_auto] sm:gap-x-4"
+                    className="grid grid-cols-[3px_auto_minmax(0,1fr)_auto] items-center gap-x-3 px-6 py-2 transition-colors hover:bg-secondary/50 sm:grid-cols-[3px_28px_minmax(0,1fr)_240px_180px_112px] sm:gap-x-4"
                   >
                     <span className={`h-8 w-[3px] rounded-full ${puntoSemaforo(semaforoDe(o))}`} />
                     <ResponsableIniciales nombre={o.empresa.responsable} />
@@ -282,7 +282,7 @@ function PanelVencimientos({
                       </span>
                     </span>
                     <span className="hidden min-w-0 sm:block">
-                      <TipoBadge tipo={o.tipo} className="text-[13px]" />
+                      <TipoBadge tipo={o.tipo} tono="foreground" className="w-full text-[13px]" />
                     </span>
                     <span className="text-right text-[15px] font-medium tabular-nums">
                       {formatFecha(o.vencimiento)}
