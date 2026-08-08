@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ResponsableIniciales } from "@/components/app/badges";
+import { ImportarExcel } from "@/components/app/importar-excel";
 import { useStore } from "@/lib/store";
 import { cambiarRolAdmin, listarUsuarios } from "@/lib/admin.functions";
 
