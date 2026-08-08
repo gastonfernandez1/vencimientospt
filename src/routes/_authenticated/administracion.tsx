@@ -167,6 +167,8 @@ function AdministracionPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ImportarExcel />
     </div>
   );
 }
