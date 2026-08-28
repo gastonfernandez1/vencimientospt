@@ -1,6 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, ChevronsUpDown, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -66,6 +76,7 @@ export const Route = createFileRoute("/_authenticated/obligaciones")({
 });
 
 const TODOS = "todos";
+const FILAS_POR_PAGINA = 25;
 
 const URGENCIAS = {
   vencidas: "Vencidas",
@@ -166,6 +177,7 @@ function ObligacionesPage() {
     campo: "vencimiento",
     asc: true,
   });
+  const [pagina, setPagina] = useState(1);
 
   const empresas = useMemo(
     () =>
@@ -211,6 +223,17 @@ function ObligacionesPage() {
     });
     return orden.asc ? r : -r;
   });
+
+  useEffect(() => {
+    setPagina(1);
+  }, [busqueda, empresa, responsable, estado, tipo, cierre, desde, hasta, urgencia]);
+
+  const totalPaginas = Math.max(1, Math.ceil(ordenadas.length / FILAS_POR_PAGINA));
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const paginadas = ordenadas.slice(
+    (paginaActual - 1) * FILAS_POR_PAGINA,
+    paginaActual * FILAS_POR_PAGINA,
+  );
 
   function ordenarPor(campo: Campo) {
     setOrden((o) => (o.campo === campo ? { campo, asc: !o.asc } : { campo, asc: true }));
@@ -369,7 +392,7 @@ function ObligacionesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {ordenadas.map((o) => (
+              {paginadas.map((o) => (
                 <TableRow key={o.id}>
                   <TableCell>
                     <SemaforoBadge obligacion={o} className="max-w-full" />
@@ -463,6 +486,35 @@ function ObligacionesPage() {
             </TableBody>
           </Table>
         </CardContent>
+        {ordenadas.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-3">
+            <p className="text-sm text-muted-foreground">
+              Mostrando {(paginaActual - 1) * FILAS_POR_PAGINA + 1}–
+              {Math.min(paginaActual * FILAS_POR_PAGINA, ordenadas.length)} de {ordenadas.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={paginaActual <= 1}
+                onClick={() => setPagina((p) => p - 1)}
+              >
+                <ChevronLeft className="size-4" /> Anterior
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={paginaActual >= totalPaginas}
+                onClick={() => setPagina((p) => p + 1)}
+              >
+                Siguiente <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       <ObligacionDialog open={abierto} onOpenChange={setAbierto} obligacion={editando} />

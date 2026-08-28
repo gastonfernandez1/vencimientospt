@@ -101,14 +101,17 @@ export function toISO(date: Date): string {
 export function formatFecha(value?: string): string {
   if (!value) return "—";
   const d = parseISO(value);
-  return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const dd = `${d.getDate()}`.padStart(2, "0");
+  const mm = `${d.getMonth() + 1}`.padStart(2, "0");
+  return `${dd}/${mm}/${d.getFullYear()}`;
 }
 
 /** Cierre de ejercicio: sólo mes y año (ej. "06/2025"). */
 export function formatCierre(value?: string): string {
   if (!value) return "—";
   const d = parseISO(value);
-  return d.toLocaleDateString("es-AR", { month: "2-digit", year: "numeric" });
+  const mm = `${d.getMonth() + 1}`.padStart(2, "0");
+  return `${mm}/${d.getFullYear()}`;
 }
 
 /** Título de ejercicio fiscal (ej. "FY 12/2025"). */
@@ -138,9 +141,6 @@ export function semaforoDe(o: Obligacion): Semaforo {
   const dias = diasRestantes(o.vencimiento);
   if (dias < 0) return "vencido";
   if (dias <= 7) return "critico";
-  const v = parseISO(o.vencimiento);
-  const n = hoy();
-  if (v.getFullYear() === n.getFullYear() && v.getMonth() === n.getMonth()) return "proximo";
   return "proximo";
 }
 
