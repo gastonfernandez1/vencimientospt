@@ -248,6 +248,14 @@ function ObligacionesPage() {
     [obligaciones],
   );
 
+  const mesesVencimiento = useMemo(
+    () =>
+      [...new Set(obligaciones.map((o) => o.vencimiento.slice(0, 7)))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [obligaciones],
+  );
+
   const filtradas = obligaciones.filter((o) => {
     const q = busqueda.trim().toLowerCase();
     if (
