@@ -231,6 +231,7 @@ function ObligacionesPage() {
     asc: true,
   });
   const [pagina, setPagina] = useState(1);
+  const [anchos, setAnchos] = useState<Record<ColKey, number>>({ ...ANCHOS_INICIALES });
 
   const empresas = useMemo(
     () =>
