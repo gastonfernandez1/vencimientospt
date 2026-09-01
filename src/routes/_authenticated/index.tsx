@@ -156,7 +156,7 @@ function Dashboard() {
             <Users className="size-4" /> Carga por responsable
           </CardTitle>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/obligaciones">Ver todas</Link>
+            <Link to="/obligaciones" search={{ responsable: undefined, urgencia: undefined }}>Ver todas</Link>
           </Button>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -164,7 +164,7 @@ function Dashboard() {
             <Link
               key={nombre}
               to="/obligaciones"
-              search={{ responsable: nombre }}
+              search={{ responsable: nombre, urgencia: undefined }}
               className="rounded-lg border border-border bg-secondary/40 p-4 transition-colors hover:bg-secondary"
             >
               <p className="font-medium">{nombre}</p>
@@ -326,7 +326,7 @@ function Indicador({
     presentado: "text-presentado bg-presentado-soft",
   }[tono];
   return (
-    <Link to="/obligaciones" search={{ urgencia }} className="block">
+    <Link to="/obligaciones" search={{ responsable: undefined, urgencia }} className="block">
       <Card className="transition-colors hover:bg-secondary/50">
         <CardContent className="flex items-start justify-between gap-3 pt-6">
           <div>
