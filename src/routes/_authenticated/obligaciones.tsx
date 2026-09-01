@@ -128,32 +128,85 @@ function valorDe(o: VistaObligacion, campo: Campo): string {
   }
 }
 
+const ANCHO_MINIMO = 60;
+
+const ANCHOS_INICIALES = {
+  urgencia: 122,
+  responsable: 64,
+  empresa: 220,
+  cierre: 96,
+  tipo: 168,
+  vencimiento: 112,
+  estado: 136,
+  presentacion: 110,
+  acciones: 76,
+} as const;
+
+type ColKey = keyof typeof ANCHOS_INICIALES;
+
+type DragAncho = { col: ColKey; inicioX: number; inicioAncho: number };
+
+function ManijaAncho({ col, setAnchos }: { col: ColKey; setAnchos: React.Dispatch<React.SetStateAction<Record<ColKey, number>>> }) {
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Ajustar ancho de columna"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const th = (e.currentTarget as HTMLElement).closest("th");
+        if (!th) return;
+        const drag: DragAncho = { col, inicioX: e.clientX, inicioAncho: th.getBoundingClientRect().width };
+        const mover = (ev: PointerEvent) => {
+          const nuevo = Math.max(ANCHO_MINIMO, drag.inicioAncho + ev.clientX - drag.inicioX);
+          setAnchos((prev) => ({ ...prev, [drag.col]: nuevo }));
+        };
+        const soltar = () => {
+          window.removeEventListener("pointermove", mover);
+          window.removeEventListener("pointerup", soltar);
+        };
+        window.addEventListener("pointermove", mover);
+        window.addEventListener("pointerup", soltar);
+      }}
+      className="absolute inset-y-0 right-0 w-2 cursor-col-resize touch-none select-none hover:bg-border"
+    />
+  );
+}
+
 function Columna({
   campo,
   orden,
   onSort,
   className,
+  ancho,
+  setAnchos,
+  col,
   children,
 }: {
   campo: Campo;
   orden: Orden;
   onSort: (campo: Campo) => void;
   className?: string;
+  ancho: number;
+  setAnchos: React.Dispatch<React.SetStateAction<Record<ColKey, number>>>;
+  col: ColKey;
   children: React.ReactNode;
 }) {
   const activa = orden.campo === campo;
   const Icono = !activa ? ChevronsUpDown : orden.asc ? ArrowUp : ArrowDown;
   return (
-    <TableHead className={className}>
+    <TableHead className={className} style={{ width: ancho }}>
       <button
         type="button"
         onClick={() => onSort(campo)}
-        className="inline-flex max-w-full items-center gap-1 text-left font-medium hover:text-foreground"
+        className="inline-flex max-w-full items-start gap-1 text-left font-medium hover:text-foreground"
         aria-label={`Ordenar por ${campo}`}
       >
-        <span className="truncate">{children}</span>
-        <Icono className={activa ? "size-3.5" : "size-3.5 opacity-40"} />
+        <span className="whitespace-normal leading-tight">{children}</span>
+        <Icono className={`mt-0.5 shrink-0 ${activa ? "size-3.5" : "size-3.5 opacity-40"}`} />
       </button>
+      <ManijaAncho col={col} setAnchos={setAnchos} />
     </TableHead>
   );
 }
