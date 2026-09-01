@@ -221,8 +221,7 @@ function ObligacionesPage() {
   const [estado, setEstado] = useState(TODOS);
   const [tipo, setTipo] = useState(TODOS);
   const [cierre, setCierre] = useState(TODOS);
-  const [desde, setDesde] = useState("");
-  const [hasta, setHasta] = useState("");
+  const [vencMes, setVencMes] = useState(TODOS);
   const [urgencia, setUrgencia] = useState<Urgencia | undefined>(busquedaUrl.urgencia);
   const [editando, setEditando] = useState<Obligacion | null>(null);
   const [abierto, setAbierto] = useState(false);
@@ -264,8 +263,7 @@ function ObligacionesPage() {
     if (estado !== TODOS && o.estado !== estado) return false;
     if (tipo !== TODOS && o.tipo !== tipo) return false;
     if (cierre !== TODOS && o.ejercicio.cierre.slice(0, 7) !== cierre) return false;
-    if (desde && o.vencimiento.slice(0, 7) < desde) return false;
-    if (hasta && o.vencimiento.slice(0, 7) > hasta) return false;
+    if (vencMes !== TODOS && o.vencimiento.slice(0, 7) !== vencMes) return false;
     if (urgencia && !cumpleUrgencia(o, urgencia)) return false;
     return true;
   });
@@ -471,7 +469,9 @@ function ObligacionesPage() {
                   </TableCell>
                   <TableCell className="whitespace-nowrap">{formatCierre(o.ejercicio.cierre)}</TableCell>
                   <TableCell>
-                    <TipoBadge tipo={o.tipo} className="text-[13px]" />
+                    <p className="truncate font-medium leading-tight" title={o.tipo}>
+                      {o.tipo}
+                    </p>
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     <p className="font-medium leading-tight">{formatFecha(o.vencimiento)}</p>
