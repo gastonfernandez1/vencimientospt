@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ResponsableIniciales, SemaforoBadge, TipoBadge } from "@/components/app/badges";
+import { ResponsableIniciales, SemaforoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import {
@@ -221,8 +221,7 @@ function ObligacionesPage() {
   const [estado, setEstado] = useState(TODOS);
   const [tipo, setTipo] = useState(TODOS);
   const [cierre, setCierre] = useState(TODOS);
-  const [desde, setDesde] = useState("");
-  const [hasta, setHasta] = useState("");
+  const [vencMes, setVencMes] = useState(TODOS);
   const [urgencia, setUrgencia] = useState<Urgencia | undefined>(busquedaUrl.urgencia);
   const [editando, setEditando] = useState<Obligacion | null>(null);
   const [abierto, setAbierto] = useState(false);
@@ -249,6 +248,14 @@ function ObligacionesPage() {
     [obligaciones],
   );
 
+  const mesesVencimiento = useMemo(
+    () =>
+      [...new Set(obligaciones.map((o) => o.vencimiento.slice(0, 7)))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [obligaciones],
+  );
+
   const filtradas = obligaciones.filter((o) => {
     const q = busqueda.trim().toLowerCase();
     if (
@@ -264,8 +271,7 @@ function ObligacionesPage() {
     if (estado !== TODOS && o.estado !== estado) return false;
     if (tipo !== TODOS && o.tipo !== tipo) return false;
     if (cierre !== TODOS && o.ejercicio.cierre.slice(0, 7) !== cierre) return false;
-    if (desde && o.vencimiento.slice(0, 7) < desde) return false;
-    if (hasta && o.vencimiento.slice(0, 7) > hasta) return false;
+    if (vencMes !== TODOS && o.vencimiento.slice(0, 7) !== vencMes) return false;
     if (urgencia && !cumpleUrgencia(o, urgencia)) return false;
     return true;
   });
@@ -280,7 +286,7 @@ function ObligacionesPage() {
 
   useEffect(() => {
     setPagina(1);
-  }, [busqueda, empresa, responsable, estado, tipo, cierre, desde, hasta, urgencia]);
+  }, [busqueda, empresa, responsable, estado, tipo, cierre, vencMes, urgencia]);
 
   const totalPaginas = Math.max(1, Math.ceil(ordenadas.length / FILAS_POR_PAGINA));
   const paginaActual = Math.min(pagina, totalPaginas);
@@ -300,8 +306,7 @@ function ObligacionesPage() {
     setEstado(TODOS);
     setTipo(TODOS);
     setCierre(TODOS);
-    setDesde("");
-    setHasta("");
+    setVencMes(TODOS);
     setUrgencia(undefined);
   }
 
@@ -389,24 +394,13 @@ function ObligacionesPage() {
               </SelectItem>
             ))}
           </Filtro>
-          <div className="grid gap-2">
-            <Label htmlFor="desde">Vence desde</Label>
-            <Input
-              id="desde"
-              type="month"
-              value={desde}
-              onChange={(e) => setDesde(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="hasta">Vence hasta</Label>
-            <Input
-              id="hasta"
-              type="month"
-              value={hasta}
-              onChange={(e) => setHasta(e.target.value)}
-            />
-          </div>
+          <Filtro label="Vencimiento" value={vencMes} onChange={setVencMes}>
+            {mesesVencimiento.map((m) => (
+              <SelectItem key={m} value={m}>
+                {formatCierre(`${m}-01`)}
+              </SelectItem>
+            ))}
+          </Filtro>
           <div className="flex items-end">
             <Button variant="ghost" onClick={limpiar}>
               Limpiar filtros
@@ -471,7 +465,9 @@ function ObligacionesPage() {
                   </TableCell>
                   <TableCell className="whitespace-nowrap">{formatCierre(o.ejercicio.cierre)}</TableCell>
                   <TableCell>
-                    <TipoBadge tipo={o.tipo} className="text-[13px]" />
+                    <p className="truncate font-medium leading-tight" title={o.tipo}>
+                      {o.tipo}
+                    </p>
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     <p className="font-medium leading-tight">{formatFecha(o.vencimiento)}</p>
