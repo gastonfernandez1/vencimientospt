@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ResponsableIniciales, SemaforoBadge, TipoBadge } from "@/components/app/badges";
+import { ResponsableIniciales, SemaforoBadge } from "@/components/app/badges";
 import { ObligacionDialog } from "@/components/app/obligacion-dialog";
 import { useObligacionesEnriquecidas, useStore, type VistaObligacion } from "@/lib/store";
 import {
