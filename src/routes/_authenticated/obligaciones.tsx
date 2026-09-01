@@ -278,7 +278,7 @@ function ObligacionesPage() {
 
   useEffect(() => {
     setPagina(1);
-  }, [busqueda, empresa, responsable, estado, tipo, cierre, desde, hasta, urgencia]);
+  }, [busqueda, empresa, responsable, estado, tipo, cierre, vencMes, urgencia]);
 
   const totalPaginas = Math.max(1, Math.ceil(ordenadas.length / FILAS_POR_PAGINA));
   const paginaActual = Math.min(pagina, totalPaginas);
@@ -298,8 +298,7 @@ function ObligacionesPage() {
     setEstado(TODOS);
     setTipo(TODOS);
     setCierre(TODOS);
-    setDesde("");
-    setHasta("");
+    setVencMes(TODOS);
     setUrgencia(undefined);
   }
 
@@ -387,24 +386,13 @@ function ObligacionesPage() {
               </SelectItem>
             ))}
           </Filtro>
-          <div className="grid gap-2">
-            <Label htmlFor="desde">Vence desde</Label>
-            <Input
-              id="desde"
-              type="month"
-              value={desde}
-              onChange={(e) => setDesde(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="hasta">Vence hasta</Label>
-            <Input
-              id="hasta"
-              type="month"
-              value={hasta}
-              onChange={(e) => setHasta(e.target.value)}
-            />
-          </div>
+          <Filtro label="Vencimiento" value={vencMes} onChange={setVencMes}>
+            {mesesVencimiento.map((m) => (
+              <SelectItem key={m} value={m}>
+                {formatCierre(`${m}-01`)}
+              </SelectItem>
+            ))}
+          </Filtro>
           <div className="flex items-end">
             <Button variant="ghost" onClick={limpiar}>
               Limpiar filtros
