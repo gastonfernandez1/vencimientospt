@@ -416,8 +416,11 @@ function ObligacionesPage() {
       </Card>
 
       <Card>
-        <CardContent className="pt-4 text-[13px] [&_td]:px-2 [&_td]:py-2 [&_th]:h-9 [&_th]:px-2">
-          <Table className="w-full table-fixed">
+        <CardContent className="overflow-x-auto pt-4 text-[13px] [&_td]:px-2 [&_td]:py-2 [&_th]:h-9 [&_th]:px-2">
+          <Table
+            className="table-fixed"
+            style={{ width: Object.values(anchos).reduce((a, b) => a + b, 0), minWidth: "100%" }}
+          >
             <TableHeader>
               <TableRow>
                 <TableHead style={{ width: anchos.urgencia }} className="relative">
