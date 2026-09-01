@@ -128,32 +128,85 @@ function valorDe(o: VistaObligacion, campo: Campo): string {
   }
 }
 
+const ANCHO_MINIMO = 60;
+
+const ANCHOS_INICIALES = {
+  urgencia: 122,
+  responsable: 64,
+  empresa: 220,
+  cierre: 96,
+  tipo: 168,
+  vencimiento: 112,
+  estado: 136,
+  presentacion: 110,
+  acciones: 76,
+} as const;
+
+type ColKey = keyof typeof ANCHOS_INICIALES;
+
+type DragAncho = { col: ColKey; inicioX: number; inicioAncho: number };
+
+function ManijaAncho({ col, setAnchos }: { col: ColKey; setAnchos: React.Dispatch<React.SetStateAction<Record<ColKey, number>>> }) {
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Ajustar ancho de columna"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const th = (e.currentTarget as HTMLElement).closest("th");
+        if (!th) return;
+        const drag: DragAncho = { col, inicioX: e.clientX, inicioAncho: th.getBoundingClientRect().width };
+        const mover = (ev: PointerEvent) => {
+          const nuevo = Math.max(ANCHO_MINIMO, drag.inicioAncho + ev.clientX - drag.inicioX);
+          setAnchos((prev) => ({ ...prev, [drag.col]: nuevo }));
+        };
+        const soltar = () => {
+          window.removeEventListener("pointermove", mover);
+          window.removeEventListener("pointerup", soltar);
+        };
+        window.addEventListener("pointermove", mover);
+        window.addEventListener("pointerup", soltar);
+      }}
+      className="absolute inset-y-0 right-0 w-2 cursor-col-resize touch-none select-none hover:bg-border"
+    />
+  );
+}
+
 function Columna({
   campo,
   orden,
   onSort,
   className,
+  ancho,
+  setAnchos,
+  col,
   children,
 }: {
   campo: Campo;
   orden: Orden;
   onSort: (campo: Campo) => void;
   className?: string;
+  ancho: number;
+  setAnchos: React.Dispatch<React.SetStateAction<Record<ColKey, number>>>;
+  col: ColKey;
   children: React.ReactNode;
 }) {
   const activa = orden.campo === campo;
   const Icono = !activa ? ChevronsUpDown : orden.asc ? ArrowUp : ArrowDown;
   return (
-    <TableHead className={className}>
+    <TableHead className={className} style={{ width: ancho }}>
       <button
         type="button"
         onClick={() => onSort(campo)}
-        className="inline-flex max-w-full items-center gap-1 text-left font-medium hover:text-foreground"
+        className="inline-flex max-w-full items-start gap-1 text-left font-medium hover:text-foreground"
         aria-label={`Ordenar por ${campo}`}
       >
-        <span className="truncate">{children}</span>
-        <Icono className={activa ? "size-3.5" : "size-3.5 opacity-40"} />
+        <span className="whitespace-normal leading-tight">{children}</span>
+        <Icono className={`mt-0.5 shrink-0 ${activa ? "size-3.5" : "size-3.5 opacity-40"}`} />
       </button>
+      <ManijaAncho col={col} setAnchos={setAnchos} />
     </TableHead>
   );
 }
@@ -178,6 +231,7 @@ function ObligacionesPage() {
     asc: true,
   });
   const [pagina, setPagina] = useState(1);
+  const [anchos, setAnchos] = useState<Record<ColKey, number>>({ ...ANCHOS_INICIALES });
 
   const empresas = useMemo(
     () =>
@@ -362,33 +416,42 @@ function ObligacionesPage() {
       </Card>
 
       <Card>
-        <CardContent className="pt-4 text-[13px] [&_td]:px-2 [&_td]:py-2 [&_th]:h-9 [&_th]:px-2">
-          <Table className="w-full table-fixed">
+        <CardContent className="overflow-x-auto pt-4 text-[13px] [&_td]:px-2 [&_td]:py-2 [&_th]:h-9 [&_th]:px-2">
+          <Table
+            className="table-fixed"
+            style={{ width: Object.values(anchos).reduce((a, b) => a + b, 0), minWidth: "100%" }}
+          >
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[122px]">Urgencia</TableHead>
-                <Columna campo="responsable" orden={orden} onSort={ordenarPor} className="w-[64px]">
+                <TableHead style={{ width: anchos.urgencia }} className="relative">
+                  <span className="whitespace-normal leading-tight">Urgencia</span>
+                  <ManijaAncho col="urgencia" setAnchos={setAnchos} />
+                </TableHead>
+                <Columna col="responsable" ancho={anchos.responsable} setAnchos={setAnchos} campo="responsable" orden={orden} onSort={ordenarPor} className="relative">
                   Responsable
                 </Columna>
-                <Columna campo="empresa" orden={orden} onSort={ordenarPor}>
+                <Columna col="empresa" ancho={anchos.empresa} setAnchos={setAnchos} campo="empresa" orden={orden} onSort={ordenarPor} className="relative">
                   Empresa
                 </Columna>
-                <Columna campo="cierre" orden={orden} onSort={ordenarPor} className="w-[96px]">
+                <Columna col="cierre" ancho={anchos.cierre} setAnchos={setAnchos} campo="cierre" orden={orden} onSort={ordenarPor} className="relative">
                   Período fiscal
                 </Columna>
-                <Columna campo="tipo" orden={orden} onSort={ordenarPor} className="w-[168px]">
+                <Columna col="tipo" ancho={anchos.tipo} setAnchos={setAnchos} campo="tipo" orden={orden} onSort={ordenarPor} className="relative">
                   Tipo de presentación
                 </Columna>
-                <Columna campo="vencimiento" orden={orden} onSort={ordenarPor} className="w-[112px]">
+                <Columna col="vencimiento" ancho={anchos.vencimiento} setAnchos={setAnchos} campo="vencimiento" orden={orden} onSort={ordenarPor} className="relative">
                   Vencimiento
                 </Columna>
-                <Columna campo="estado" orden={orden} onSort={ordenarPor} className="w-[136px]">
+                <Columna col="estado" ancho={anchos.estado} setAnchos={setAnchos} campo="estado" orden={orden} onSort={ordenarPor} className="relative">
                   Estado
                 </Columna>
-                <Columna campo="presentacion" orden={orden} onSort={ordenarPor} className="w-[92px]">
+                <Columna col="presentacion" ancho={anchos.presentacion} setAnchos={setAnchos} campo="presentacion" orden={orden} onSort={ordenarPor} className="relative">
                   Fecha de Presentación
                 </Columna>
-                <TableHead className="w-[76px] text-right">Acciones</TableHead>
+                <TableHead style={{ width: anchos.acciones }} className="relative text-right">
+                  <span className="whitespace-normal leading-tight">Acciones</span>
+                  <ManijaAncho col="acciones" setAnchos={setAnchos} />
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
