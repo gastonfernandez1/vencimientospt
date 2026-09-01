@@ -419,29 +419,35 @@ function ObligacionesPage() {
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[122px]">Urgencia</TableHead>
-                <Columna campo="responsable" orden={orden} onSort={ordenarPor} className="w-[64px]">
+                <TableHead style={{ width: anchos.urgencia }} className="relative">
+                  <span className="whitespace-normal leading-tight">Urgencia</span>
+                  <ManijaAncho col="urgencia" setAnchos={setAnchos} />
+                </TableHead>
+                <Columna col="responsable" ancho={anchos.responsable} setAnchos={setAnchos} campo="responsable" orden={orden} onSort={ordenarPor} className="relative">
                   Responsable
                 </Columna>
-                <Columna campo="empresa" orden={orden} onSort={ordenarPor}>
+                <Columna col="empresa" ancho={anchos.empresa} setAnchos={setAnchos} campo="empresa" orden={orden} onSort={ordenarPor} className="relative">
                   Empresa
                 </Columna>
-                <Columna campo="cierre" orden={orden} onSort={ordenarPor} className="w-[96px]">
+                <Columna col="cierre" ancho={anchos.cierre} setAnchos={setAnchos} campo="cierre" orden={orden} onSort={ordenarPor} className="relative">
                   Período fiscal
                 </Columna>
-                <Columna campo="tipo" orden={orden} onSort={ordenarPor} className="w-[168px]">
+                <Columna col="tipo" ancho={anchos.tipo} setAnchos={setAnchos} campo="tipo" orden={orden} onSort={ordenarPor} className="relative">
                   Tipo de presentación
                 </Columna>
-                <Columna campo="vencimiento" orden={orden} onSort={ordenarPor} className="w-[112px]">
+                <Columna col="vencimiento" ancho={anchos.vencimiento} setAnchos={setAnchos} campo="vencimiento" orden={orden} onSort={ordenarPor} className="relative">
                   Vencimiento
                 </Columna>
-                <Columna campo="estado" orden={orden} onSort={ordenarPor} className="w-[136px]">
+                <Columna col="estado" ancho={anchos.estado} setAnchos={setAnchos} campo="estado" orden={orden} onSort={ordenarPor} className="relative">
                   Estado
                 </Columna>
-                <Columna campo="presentacion" orden={orden} onSort={ordenarPor} className="w-[92px]">
+                <Columna col="presentacion" ancho={anchos.presentacion} setAnchos={setAnchos} campo="presentacion" orden={orden} onSort={ordenarPor} className="relative">
                   Fecha de Presentación
                 </Columna>
-                <TableHead className="w-[76px] text-right">Acciones</TableHead>
+                <TableHead style={{ width: anchos.acciones }} className="relative text-right">
+                  <span className="whitespace-normal leading-tight">Acciones</span>
+                  <ManijaAncho col="acciones" setAnchos={setAnchos} />
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
